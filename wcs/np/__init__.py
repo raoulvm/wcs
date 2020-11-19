@@ -1,8 +1,5 @@
 from IPython.core.display import Markdown, display
 import numpy as np
-#from numpy.core.numeric import False_
-#from typing import Union
-#import math 
 
 
 def printmd(string:str):
@@ -14,7 +11,7 @@ def printmd(string:str):
     '''
     display(Markdown(string))
 
-def printMatrix(matrix:np.ndarray, decimals:int=None, name:str=None, maxSize:int=20):
+def print_matrix(matrix:np.ndarray, decimals:int=None, name:str=None, maxSize:int=20):
     '''
     Matrix Markdown in Jupyter
     ==========================
