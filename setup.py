@@ -10,4 +10,10 @@ setup(
     license='MIT2.0',
     packages=find_packages(), # Auto setup all packages
     zip_safe=False
+    install_requires=[
+        'scikit-learn>=0.23.0',
+        'scipy>=1.4.1',
+        'pandas>=1.0.5',
+        'numpy>=1.18.1'
+    ]
 )
