@@ -85,7 +85,7 @@ def pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:list=['Positi
 
         # regarding predicted Negatives
         For = confusionmatrix[0,1] / confusionmatrix[:,1].sum()
-        ret_metrics.update({'FOR':Fdr})
+        ret_metrics.update({'FOR':For})
         m[r1 + 1,  c2 + 2 ] = mtext('False Omission Rate' , f"Of the predicted {textlabels[1]}s, {For:,.0%} were in fact {textlabels[0]}s!")
         m[r1 + 1,  c2 + 1] = f'{For:,.0%}'
 
