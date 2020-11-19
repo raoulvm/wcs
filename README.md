@@ -1,2 +1,2 @@
 # wcs
-wcs trining tools
+wcs training tools
