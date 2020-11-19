@@ -102,6 +102,6 @@ def pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:list=['Positi
 
         #m.mergeCells(5,4,7,7)
         display(m)
-        ret_metrics
+        return ret_metrics
     return m
 
