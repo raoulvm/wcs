@@ -197,7 +197,7 @@ def make_transformer_list(tlist:list, withnames:bool=True)->list:
                            cls,
                            cols))
         else:
-            result.append((cls(**params),
+            result.append((cls,
                            cols))            
         i += 1
     return result
