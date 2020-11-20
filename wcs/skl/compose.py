@@ -82,7 +82,7 @@ def _inspect_col_transformer(fitted_col_transform:ColumnTransformer, tname:str='
 
         # everything else
         else:
-            collist.extend(_inspect_transformer(trs[1],trs[2], trs[0]), fitted_col_transform.remainder)
+            collist.extend(_inspect_transformer(trs[1],trs[2], trs[0]))
     #print(f'End ColTransformer - {tname} ',collist)
     return collist
 
