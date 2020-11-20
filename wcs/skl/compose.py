@@ -65,10 +65,10 @@ def _inspect_col_transformer(fitted_col_transform:ColumnTransformer, tname:str='
         #print('Transformer:', trs) # just for debugging!
 
         # deal with remainder
-        if fitted_col_transform.remainder=='drop' and trs[3]=='remainder':
+        if fitted_col_transform.remainder=='drop' and trs[0]=='remainder':
             # do not add anything, because the the remaining columns get dropped
             pass
-        elif fitted_col_transform.remainder=='passthrough' and trs[3]=='remainder':
+        elif fitted_col_transform.remainder=='passthrough' and trs[0]=='remainder':
             #
             print(trs)
             raise NotImplementedError(f'Determination of remainder="passthrough" has not been implemented yet. Error in {tname}')
