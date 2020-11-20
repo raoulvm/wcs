@@ -23,9 +23,11 @@ from wcs.google import google_drive_share
 ### wcs.skl.compose.get_feature_names
 *returns the output columns of e.g. a column transformer with nested pipelines*
 
-### wcs.skl.compose.repipe_transformer_tuples
+### wcs.skl.compose.repipe_transformer_tuples 
 *collates transformations for the same columns into Pipelines. See DocString*
 
+### wcs.skl.compose.make_transformer_list(tlist:list, withnames:bool=True)->list:
+*instantiates transformers for multiple use of the transformation list without the need of resetting them again*
 
 ### wcs.skl.rcat
 #### Mass fuer die "Korrelation" zwischen einer numerischen und einer kategoriellen Variable

@@ -157,3 +157,47 @@ def repipe_transformer_tuples(column_rules:list)->list:
             ))
     return transformer_list
 # IMPROVEMENT IDEA: COLLATE IDENTICAL TRANSORMATIONS TO LIST OF COLUMNS AGAIN
+
+
+
+######################################
+
+def make_transformer_list(tlist:list, withnames:bool=True)->list:
+    """
+    Generate (raw) list of Transformers for sklearn.compose.ColumnTransformer.  
+    The transformers in the list will get instatiated before returning, so they are all brand new!  
+    Do not nest in Pipelines, that is incompatible here.  
+    You can pass the result to `wcs.skl.compose.repipe_transformer_list()` to get the transformers for one field encapsulated in a pipeline, each.
+
+    arguments
+    ---------
+    takes a list of transformers in the form [( transformer-class, {parameters for instantiation}, [columns] )]
+
+    * `tranformer-class` must not be initialized/instantiated, so OrdinalEncoder 
+    is fine OrdinalEncoder() is not
+    * `{parameters for instantiation}` can be None or {} if no arguments are required
+    * `[columns]` can be string or list of strings, will be passed on as list
+
+    if `withnames` is True (default) a unique name (col+Number) will be created 
+    for ColumnTransformer, False for make_column_transformer() which creates names itself.
+
+    """
+    result = []
+    i = 0
+    for t in tlist:
+        cls = t[0]
+        params = {} if t[1] is None else t[1]
+        cols = [t[2]] if isinstance(t[2], str) else t[2] # just pass on if it is a list or an object other than str
+        if isinstance(cls, str):
+            pass # can be 'passthrough' or 'drop'
+        else:
+            cls = cls(**params)
+        if withnames:
+            result.append(( str(cols).replace(' ','').replace('[','').replace(']','').replace("'",'')+str(i),
+                           cls,
+                           cols))
+        else:
+            result.append((cls(**params),
+                           cols))            
+        i += 1
+    return result
