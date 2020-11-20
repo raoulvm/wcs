@@ -155,7 +155,7 @@ def repipe_transformer_tuples(column_rules:list, withnames:bool=True)->list:
             if withnames:
                 pipe_dict_rules[field] = pipe_dict_rules.get(field,[]) + [(rule[CT_TUPLE_NAME], rule[CT_TUPLE_FUNC],)]
             else:
-                pipe_dict_rules[field] = pipe_dict_rules.get(field,[]) + [rule[CT_TUPLE_FUNC]]
+                pipe_dict_rules[field] = pipe_dict_rules.get(field,[]) + [(rule[CT_TUPLE_FUNC], )]
 
     # create PipeLines
     transformer_list = []
