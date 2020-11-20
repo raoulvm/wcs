@@ -61,6 +61,8 @@ def _inspect_transformer(transformer, columns_passed, tr_name:str,ct_remainder:s
 def _inspect_col_transformer(fitted_col_transform:ColumnTransformer, tname:str='')->List:
     # print('Begin ColTransformer ', tname)
     collist = [] # my object to collect the column names
+    if not hasattr(fitted_col_transform, 'transformers_'):
+        raise ValueError('ColumnTranformer not fitted yet!')
     for trs in fitted_col_transform.transformers_:
         #print('Transformer:', trs) # just for debugging!
 
