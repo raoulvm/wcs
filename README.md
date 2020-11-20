@@ -20,8 +20,13 @@ from wcs.google import google_drive_share
 ### wcs.skl.confusion.pretty_confusionmatrix
 *can print nicer explainable confusion matrices. pass it a confusion matrix and enjoy.* **Work In Progress Warning**
 
+### wcs.skl.compose.get_feature_names
+*returns the output columns of e.g. a column transformer with nested pipelines*
+
 ### wcs.skl.rcat
 #### Mass fuer die "Korrelation" zwischen einer numerischen und einer kategoriellen Variable
+
+
 
 Voraussetzungen
 * Varianz der numerischen Variable $var_{num} \neq 0$ und $var_{num} \neq \infty$
