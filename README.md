@@ -49,6 +49,9 @@ Aussage: Um wieviel nimmt die Varianz ab, wenn ich die kontinuierliche Variable 
 *nicer printout of 1 and 2-dimensional matrices in colab, can also print some matrix properties. See DocString*
 
 ## Miscellaneous
+### wcs.tools.pltfct
+*Easily plot a function*
+
 ### wcs.tools.HTMLtable
 *Create and modify text tables for display in Colab.* **Work In Progress Warning**
 

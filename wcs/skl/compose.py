@@ -112,14 +112,9 @@ def get_feature_names(sklearn_object, input_features:List=[], )->List[str]:
 # need to get the transforms in order using pipelines
 
 
-CT_TUPLE_NAME   = 0
-CT_TUPLE_FUNC   = 1
-CT_TUPLE_FIELDS = 2
 
-PI_TUPLE_NAME   = 0
-PI_TUPLE_FUNC   = 1
 
-def repipe_transformer_tuples(column_rules:list)->list:
+def repipe_transformer_tuples(column_rules:list, withnames:bool=True)->list:
     '''
     Parses a transformer-tuple list object and inserts pipelines if multiple operations are found for one column
     [('transformation_name1', func1, ['col_A', 'col_B']),  
@@ -129,32 +124,70 @@ def repipe_transformer_tuples(column_rules:list)->list:
     [('col_A', Pipeline([('transformation_name1', func1,),('transformation_name2', func2,)]), 'col_A'),
      ('col_B#transformation_name1', func1, ['col_B']),  
      ('col_C#transformation_name2', func2, ['col_C'])]  
+
+    if `withnames` is False, the argument list must not contain the name part in the tuples (only func and cols), 
+    and the function will also not return names in the tuples:
+
+    [(func1, ['col_A', 'col_B']),  
+     (func2, ['col_A', 'col_C'])]  
+     
+    will be returned as  
+    [(Pipeline([('tn1', func1,),('tn2', func2,)]), 'col_A'),
+     (func1, ['col_B']),  
+     ( func2, ['col_C'])]  
+
     '''
+    if withnames:
+        CT_TUPLE_NAME   = 0
+        CT_TUPLE_FUNC   = 1
+        CT_TUPLE_FIELDS = 2
+    else:
+        CT_TUPLE_NAME = None
+        CT_TUPLE_FUNC   = 0
+        CT_TUPLE_FIELDS = 1       
+    PI_TUPLE_NAME   = 0
+    PI_TUPLE_FUNC   = 1
     pipe_dict_rules = {}
     for rule in column_rules:
         #print(rule)
         # separate the fields
         for field in rule[CT_TUPLE_FIELDS]:
-            pipe_dict_rules[field] = pipe_dict_rules.get(field,[]) + [(rule[CT_TUPLE_NAME], rule[CT_TUPLE_FUNC],)]
+            if withnames:
+                pipe_dict_rules[field] = pipe_dict_rules.get(field,[]) + [(rule[CT_TUPLE_NAME], rule[CT_TUPLE_FUNC],)]
+            else:
+                pipe_dict_rules[field] = pipe_dict_rules.get(field,[]) + [rule[CT_TUPLE_FUNC]]
 
     # create PipeLines
     transformer_list = []
     for pipe in pipe_dict_rules.items():
         if len(pipe[1])==1:
             # only one rule to apply
-            transformer_list.append((
-                pipe[PI_TUPLE_NAME] + '#' + pipe[PI_TUPLE_FUNC][0][CT_TUPLE_NAME],
-                pipe[PI_TUPLE_FUNC][0][CT_TUPLE_FUNC],
-                [pipe[PI_TUPLE_NAME]], # name of pipeline is the field name
-            ))
+            if withnames:
+                transformer_list.append((
+                    pipe[PI_TUPLE_NAME] + '#' + pipe[PI_TUPLE_FUNC][0][CT_TUPLE_NAME],
+                    pipe[PI_TUPLE_FUNC][0][CT_TUPLE_FUNC],
+                    [pipe[PI_TUPLE_NAME]], # name of pipeline is the field name
+                ))
+            else:
+                transformer_list.append((
+                    pipe[PI_TUPLE_FUNC][0][CT_TUPLE_FUNC],
+                    [pipe[PI_TUPLE_NAME]], # name of pipeline is the field name
+                ))                
         else:
             # multiple rules to put in pipeline object
-            transformer_list.append((
-                pipe[PI_TUPLE_NAME],
-                Pipeline([(name, trnsf) for (name, trnsf) in pipe[PI_TUPLE_FUNC]
-                        ]),
-                [pipe[PI_TUPLE_NAME]], # name of pipeline is the field name        
-            ))
+            if withnames:
+                transformer_list.append((
+                    pipe[PI_TUPLE_NAME],
+                    Pipeline([(name, trnsf) for (name, trnsf) in pipe[PI_TUPLE_FUNC]
+                            ]),
+                    [pipe[PI_TUPLE_NAME]], # name of pipeline is the field name        
+                ))
+            else:
+                transformer_list.append((
+                    Pipeline([('tn1'+str(num), trnsf) for (num, trnsf) in enumerate(pipe[PI_TUPLE_FUNC])
+                            ]),
+                    [pipe[PI_TUPLE_NAME]], # name of pipeline is the field name        
+                ))                
     return transformer_list
 # IMPROVEMENT IDEA: COLLATE IDENTICAL TRANSORMATIONS TO LIST OF COLUMNS AGAIN
 

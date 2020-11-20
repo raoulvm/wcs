@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='wcs',
-    version='0.0.12',
+    version='0.0.13',
     description='wcs tools for colab and co',
     url='git@github.com/snowdd1/wcs.git',
     author='Raoul',
@@ -14,6 +14,7 @@ setup(
         'scikit-learn>=0.23.0',
         'scipy>=1.4.1',
         'pandas>=1.0.5',
-        'numpy>=1.18.1'
+        'numpy>=1.18.1',
+        'matplotlib'
     ]
 )
