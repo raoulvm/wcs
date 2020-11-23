@@ -17,8 +17,9 @@ from wcs.google import google_drive_share
 *Helps with loading files from google drive links. See docString*
 
 ## SciKit Learn Tools
-### wcs.skl.confusion.pretty_confusionmatrix()
-*can print nicer explainable confusion matrices. pass it a confusion matrix and enjoy.* **Work In Progress Warning**
+### wcs.skl.metrics.pretty_confusionmatrix()
+*can print nicer explainable confusion matrices. pass it a confusion matrix and enjoy.* **Work In Progress Warning**  
+**new location since v. 0.0.17**
 
 ### wcs.skl.compose.get_feature_names()
 *returns the output columns of e.g. a column transformer with nested pipelines*
