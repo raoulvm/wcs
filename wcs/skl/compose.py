@@ -147,8 +147,8 @@ def repipe_transformer_tuples(column_rules:list, withnames:bool=True)->list:
         CT_TUPLE_NAME = None
         CT_TUPLE_FUNC   = 0
         CT_TUPLE_FIELDS = 1       
-    PI_TUPLE_NAME   = 0
-    PI_TUPLE_FUNC   = 1
+    PI_TUPLE_KEY   = 0
+    PI_TUPLE_VALUE   = 1
     pipe_dict_rules = {}
     for rule in column_rules:
         #print(rule)
@@ -162,33 +162,33 @@ def repipe_transformer_tuples(column_rules:list, withnames:bool=True)->list:
     # create PipeLines
     transformer_list = []
     for pipe in pipe_dict_rules.items():
-        if len(pipe[1])==1:
+        if len(pipe[PI_TUPLE_VALUE])==1:
             # only one rule to apply
             if withnames:
                 transformer_list.append((
-                    pipe[PI_TUPLE_NAME] + '#' + pipe[PI_TUPLE_FUNC][0][CT_TUPLE_NAME],
-                    pipe[PI_TUPLE_FUNC][0][CT_TUPLE_FUNC],
-                    [pipe[PI_TUPLE_NAME]], # name of pipeline is the field name
+                    pipe[PI_TUPLE_KEY] + '#' + pipe[PI_TUPLE_VALUE][0][CT_TUPLE_NAME],
+                    pipe[PI_TUPLE_VALUE][0][CT_TUPLE_FUNC],
+                    [pipe[PI_TUPLE_KEY]], # name of pipeline is the field name
                 ))
             else:
                 transformer_list.append((
-                    pipe[PI_TUPLE_FUNC][0][CT_TUPLE_FUNC],
-                    [pipe[PI_TUPLE_NAME]], # name of pipeline is the field name
+                    pipe[PI_TUPLE_VALUE][0][CT_TUPLE_FUNC],
+                    [pipe[PI_TUPLE_KEY]], # name of pipeline is the field name
                 ))                
         else:
             # multiple rules to put in pipeline object
             if withnames:
                 transformer_list.append((
-                    pipe[PI_TUPLE_NAME],
-                    Pipeline([(name, trnsf) for (name, trnsf) in pipe[PI_TUPLE_FUNC]
+                    pipe[PI_TUPLE_KEY],
+                    Pipeline([(name, trnsf) for (name, trnsf) in pipe[PI_TUPLE_VALUE]
                             ]),
-                    [pipe[PI_TUPLE_NAME]], # name of pipeline is the field name        
+                    [pipe[PI_TUPLE_KEY]], # name of pipeline is the field name        
                 ))
             else:
                 transformer_list.append((
-                    Pipeline([('tn1'+str(num), trnsf) for (num, trnsf) in enumerate(pipe[PI_TUPLE_FUNC])
+                    Pipeline([('tn1'+str(num), trnsf[0]) for (num, trnsf) in enumerate(pipe[PI_TUPLE_VALUE])
                             ]),
-                    [pipe[PI_TUPLE_NAME]], # name of pipeline is the field name        
+                    [pipe[PI_TUPLE_KEY]], # name of pipeline is the field name        
                 ))                
     return transformer_list
 # IMPROVEMENT IDEA: COLLATE IDENTICAL TRANSORMATIONS TO LIST OF COLUMNS AGAIN
