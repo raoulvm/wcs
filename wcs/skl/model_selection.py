@@ -1,7 +1,7 @@
 from sklearn import model_selection as ms
 import pandas as pd
 
-def train_test_split(*args, *, keep_index:bool=False, **kwargs):
+def train_test_split(*args, keep_index:bool=False, **kwargs):
     """Split arrays or matrices into random train and test subsets
 
     Modified version ("wrapper") which resets indices on Pandas DataFrames automatically, 
