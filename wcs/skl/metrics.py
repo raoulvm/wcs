@@ -94,11 +94,11 @@ def pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:list=['Positi
         m[r1 +2 ,  c2 +2 ] = mtext('Negative predicted Value' , f"Of all predicted {textlabels[1]}s, we correctly identified {npv:,.0%}")
         m[r1 +2 ,  c2 + 1] = f'{npv:,.0%}'
         
-        m.merge_cells(r1 + 3,  c1+2, None,c1+3 )
+        #m.merge_cells(r1 + 3,  c1+2, None,c1+3 )
         f1score = 2* ((confusionmatrix[0,0] / confusionmatrix[:,0].sum() *confusionmatrix[0,0]/confusionmatrix[0].sum()) ) / (confusionmatrix[0,0] / confusionmatrix[:,0].sum() + confusionmatrix[0,0]/confusionmatrix[0].sum())
         ret_metrics.update({'F1score':f1score})
         m[r1 + 3,  c1 + 2] = mtext('F1 Score')
-        m[r1 + 3,  c1 + 4] = f'{f1score:,.0%}'
+        m[r1 + 3,  c1 + 3] = f'{f1score:,.0%}'
 
 
         # beautify only 
