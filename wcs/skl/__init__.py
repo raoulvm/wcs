@@ -1,12 +1,12 @@
 import pandas as pd
 import numpy as np
 
-from typing import Callable, Union, List
+from typing import Callable, Union, List, Any
 
 def rcat(df:pd.core.frame.DataFrame, 
          numerical_colname: Union[str, List], 
          categorical_colname:Union[str, List],
-         groupby_fct:Callable=None,
+         groupby_fct:Callable(Any)=None,
          cardinality_warning:int=100,
          weak_category_warn:int=20) -> Union[float, pd.core.frame.DataFrame]:
     """
