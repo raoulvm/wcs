@@ -7,6 +7,7 @@ def rcat(df:pd.core.frame.DataFrame,
          numerical_colname: Union[str, List], 
          categorical_colname:Union[str, List],
          groupby_fct:Callable(Any)=None,
+         group_by_fct_restrict_numerical:bool=True,
          cardinality_warning:int=100,
          weak_category_warn:int=20) -> Union[float, pd.core.frame.DataFrame]:
     """
@@ -21,6 +22,8 @@ def rcat(df:pd.core.frame.DataFrame,
           must not be a categorical (object/string) column.  
         `groupby_fct` (Callable, Default None): Function to call on the catgorical column, can be used 
           to create bins on continuous data.   
+        `group_by_fct_restrict_numerical` (bool, Default True): Only apply above function to numerical 
+          columns (i.e. float, int)
         `cardinality_warning` (int, Default 100): Print a warning if more categories in the column.  
         `weak_category_warn` (int, Default 20): Print a warning if a category has less values.  
 
@@ -60,6 +63,7 @@ def rcat(df:pd.core.frame.DataFrame,
                     numerical_colname=num, 
                     categorical_colname=cat, 
                     groupby_fct=groupby_fct, 
+                    group_by_fct_restrict_numerical=group_by_fct_restrict_numerical,
                     cardinality_warning=cardinality_warning, 
                     weak_category_warn=weak_category_warn)
         return df_rcat
@@ -69,8 +73,7 @@ def rcat(df:pd.core.frame.DataFrame,
         
         try:
             var_all = df[numerical_colname].var()
-            if groupby_fct is None:
-                
+            if groupby_fct is None or (group_by_fct_restrict_numerical and df[categorical_colname].dtype in ['object', 'category']):
                 if cardinality_warning is not None:
                     cardinality = df[categorical_colname].nunique()
                     if cardinality>cardinality_warning:
