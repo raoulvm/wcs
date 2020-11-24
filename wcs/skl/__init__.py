@@ -56,7 +56,12 @@ def rcat(df:pd.core.frame.DataFrame,
         df_rcat= pd.DataFrame(data = m_rcat, columns=colnames_num, index=colnames_cat)
         for cat in colnames_cat:
             for num in colnames_num:
-                df_rcat.loc[cat, num]= rcat(df=df, numerical_colname=num, categorical_colname=cat, groupby_fct=groupby_fct)
+                df_rcat.loc[cat, num]= rcat(df=df, 
+                    numerical_colname=num, 
+                    categorical_colname=cat, 
+                    groupby_fct=groupby_fct, 
+                    cardinality_warning=cardinality_warning, 
+                    weak_category_warn=weak_category_warn)
         return df_rcat
 
     elif (isinstance(numerical_colname, str) and isinstance(categorical_colname, str)):
