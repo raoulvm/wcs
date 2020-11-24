@@ -39,6 +39,46 @@ def rcat(df:pd.core.frame.DataFrame,
     # global type checking
     if not isinstance(df, pd.core.frame.DataFrame):
         raise TypeError('df must be a Pandas DataFrame')
+    message_set = set()
+
+    def collmess(new_message):
+        nonlocal message_set
+        message_set.add(new_message)
+    def pukemess():
+        if len(message_set)>0:
+            for mess in message_set:
+                print(mess)
+
+    def __oneResult(numerical_colname: str, categorical_colname:str):
+        var_all = df[numerical_colname].var(ddof=0)
+        if var_all==0: return 0 # if the variance of the full dataset is 0, no feature can decrease it
+        # print(f'{df[categorical_colname].dtype} dtype of col {categorical_colname}')
+        if groupby_fct is None or (group_by_fct_restrict_numerical and str(df[categorical_colname].dtype) in ['datetime64[ns]','object','category']): #, 'category']):
+            
+            if cardinality_warning is not None:
+                cardinality = df[categorical_colname].nunique()
+                if cardinality>cardinality_warning:
+                    collmess(f'Cardinality warning on {categorical_colname}: Column has {cardinality} unique values.')
+            if weak_category_warn is not None:
+                    lowcat = df[[categorical_colname,numerical_colname]].groupby(categorical_colname)[numerical_colname].apply(len)
+                    if (lowcat<weak_category_warn).sum()>0:
+                        collmess(f'Column {categorical_colname} contains {(lowcat<weak_category_warn).sum()} categories with less than {weak_category_warn} values.')
+            var_i = df[[categorical_colname,numerical_colname]].groupby(categorical_colname)[numerical_colname].var()
+        else:
+            # there is a function provided to apply to the "catgorical column" - especially if that is not really categorical
+            
+            if cardinality_warning is not None:
+                cardinality = df[[numerical_colname]].assign(**{categorical_colname: df[categorical_colname].apply(groupby_fct)})[categorical_colname].nunique()
+                if cardinality>cardinality_warning:
+                    collmess(f'Cardinality warning on {categorical_colname}: Column has {cardinality} unique values.')
+            if weak_category_warn is not None:
+                    lowcat = df[[numerical_colname]].assign(**{categorical_colname: df[categorical_colname].apply(groupby_fct)}).groupby(categorical_colname)[numerical_colname].apply(len)
+                    if (lowcat<weak_category_warn).sum()>0:
+                        collmess(f'Column {categorical_colname} (transformed) contains {(lowcat<weak_category_warn).sum()} categories with less than {weak_category_warn} values.')
+
+            var_i = df[[numerical_colname]].assign(**{categorical_colname: df[categorical_colname].apply(groupby_fct)}).groupby(categorical_colname)[numerical_colname].var(ddof=0)
+        return 1-(var_i.mean()/var_all)
+
 
     if (isinstance(numerical_colname, list) and  isinstance(categorical_colname, str)) or \
         (isinstance(numerical_colname, str) and isinstance(categorical_colname, list)) or \
@@ -59,49 +99,19 @@ def rcat(df:pd.core.frame.DataFrame,
         df_rcat= pd.DataFrame(data = m_rcat, columns=colnames_num, index=colnames_cat)
         for cat in colnames_cat:
             for num in colnames_num:
-                df_rcat.loc[cat, num]= rcat(df=df, 
+                # TODO: use Inner function
+                df_rcat.loc[cat, num]= __oneResult( 
                     numerical_colname=num, 
-                    categorical_colname=cat, 
-                    groupby_fct=groupby_fct, 
-                    group_by_fct_restrict_numerical=group_by_fct_restrict_numerical,
-                    cardinality_warning=cardinality_warning, 
-                    weak_category_warn=weak_category_warn)
+                    categorical_colname=cat)
+        pukemess()
         return df_rcat
 
     elif (isinstance(numerical_colname, str) and isinstance(categorical_colname, str)):
         # return a single number
         
-        try:
-            var_all = df[numerical_colname].var()
-            if var_all==0: return 0
-            if groupby_fct is None or (group_by_fct_restrict_numerical and str(df[categorical_colname].dtype) in ['datetime64[ns]','object','category']):
-                if cardinality_warning is not None:
-                    cardinality = df[categorical_colname].nunique()
-                    if cardinality>cardinality_warning:
-                        print(f'Cardinality warning on {categorical_colname}: Column has {cardinality} unique values.')
-                if weak_category_warn is not None:
-                      lowcat = df[[categorical_colname,numerical_colname]].groupby(categorical_colname)[numerical_colname].apply(len)
-                      if (lowcat<weak_category_warn).sum()>0:
-                          print(f'Column {categorical_colname} contains {(lowcat<weak_category_warn).sum()} categories with less than {weak_category_warn} values.')
-                var_i = df[[categorical_colname,numerical_colname]].groupby(categorical_colname)[numerical_colname].var()
-            else:
-                # there is a function provided to apply to the "catgorical column" - especially if that is not really categorical
+        y = __oneResult(numerical_colname, categorical_colname )
+        pukemess()
+        return y
 
-                if cardinality_warning is not None:
-                    cardinality = df[[numerical_colname]].assign(**{categorical_colname: df[categorical_colname].apply(groupby_fct)})[categorical_colname].nunique()
-                    if cardinality>cardinality_warning:
-                        print(f'Cardinality warning on {categorical_colname}: Column has {cardinality} unique values.')
-                if weak_category_warn is not None:
-                      lowcat = df[[numerical_colname]].assign(**{categorical_colname: df[categorical_colname].apply(groupby_fct)}).groupby(categorical_colname)[numerical_colname].apply(len)
-                      if (lowcat<weak_category_warn).sum()>0:
-                          print(f'Column {categorical_colname} contains {(lowcat<weak_category_warn).sum()} categories with less than {weak_category_warn} values.')
-
-                var_i = df[[numerical_colname]].assign(**{categorical_colname: df[categorical_colname].apply(groupby_fct)}).groupby(categorical_colname)[numerical_colname].var()
-            return 1-(var_i.mean()/var_all)
-
-        except ZeroDivisionError as z:
-            return np.inf
-        except Exception as e:
-            raise e
     else:
         raise TypeError('numerical_colname and categorial_colname must be of type "str" or "list of str"')
