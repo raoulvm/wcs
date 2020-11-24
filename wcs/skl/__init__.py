@@ -99,7 +99,6 @@ def rcat(df:pd.core.frame.DataFrame,
         df_rcat= pd.DataFrame(data = m_rcat, columns=colnames_num, index=colnames_cat)
         for cat in colnames_cat:
             for num in colnames_num:
-                # TODO: use Inner function
                 df_rcat.loc[cat, num]= __oneResult( 
                     numerical_colname=num, 
                     categorical_colname=cat)
