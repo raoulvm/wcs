@@ -73,7 +73,8 @@ def rcat(df:pd.core.frame.DataFrame,
         
         try:
             var_all = df[numerical_colname].var()
-            if groupby_fct is None or (group_by_fct_restrict_numerical and df[categorical_colname].dtype in ['object', 'category']):
+            if var_all==0: return 0
+            if groupby_fct is None or (group_by_fct_restrict_numerical and str(df[categorical_colname].dtype) in ['datetime64[ns]','object','category']):
                 if cardinality_warning is not None:
                     cardinality = df[categorical_colname].nunique()
                     if cardinality>cardinality_warning:
