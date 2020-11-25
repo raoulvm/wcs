@@ -37,6 +37,7 @@ pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:List[str]=['Posit
 
     Returns:
         Union[HTMLTable, dict]: The matrix as HTMLTable if `metrics` is set to False, a dict with the metrics otherwise (Default)
+    """
 ```
 ### wcs.skl.compose.get_feature_names()
 *returns the output columns of e.g. a column transformer with nested pipelines*
