@@ -133,12 +133,12 @@ class Inspector:
     def get_confusion_matrix(self, test:bool=True, verbose:bool=True):
         if test:
             try:
-                return pretty_confusionmatrix(confusionmatrix=confusion_matrix(self.__y_test, self.__pred_test), textlabels=self.__model.classes_, title=self.__caption + ' - ' + 'Test Data', metrics=verbose )
+                return pretty_confusionmatrix(confusionmatrix=confusion_matrix(self.__y_test, self.__pred_test), textlabels=self.__model.classes_, title=self.__caption + ' - ' + 'Test Data', metrics=verbose, as_object=True )
             except:
                 print('Cannot obtain confusion matrix for test data, None passed?')
                 return
         try:
-            return pretty_confusionmatrix(confusionmatrix=confusion_matrix(self.__y, self.__pred_train), textlabels=self.__model.classes_, title=self.__caption + ' - ' + 'Training Data', metrics=verbose )
+            return pretty_confusionmatrix(confusionmatrix=confusion_matrix(self.__y, self.__pred_train), textlabels=self.__model.classes_, title=self.__caption + ' - ' + 'Training Data', metrics=verbose , as_object=True)
         except:
             print('Cannot obtain confusion matrix for test data, None passed?')
             return
