@@ -55,18 +55,12 @@ break them into multiple calls, for each column one call.
 
 ### wcs.skl.rcat()
 #### Mass fuer die "Korrelation" zwischen einer numerischen und einer kategoriellen Variable
-
-
-
-Voraussetzungen
-* Varianz der numerischen Variable $var_{num} \neq 0$ und $var_{num} \neq \infty$
-* Varianz $ var_{i} $ von $n$ Teilmengen berechenbar und niemals $\infty$
-
-$$ R_{cat} = 1-\frac{\sum_{i=0}^n{var_{i}}}{n \cdot var_{num}}  $$
-
 Die Aufteilung in $n$ Teilmengen erfolgt anhand einer zweiten, kategoriellen Variable.
 
 Aussage: Um wieviel nimmt die Varianz ab, wenn ich die kontinuierliche Variable anhand der kategoriellen in einzelne Gruppen zerlege?
+
+### wcs.skl.rwcat()
+Wie rcat(), aber mit Gewichtung der Varianzen durch die Gruppengroessen (weniger Ausreisser-empfindlich)
 
 ## NumPy tools
 ### wcs.np.print_matrix
