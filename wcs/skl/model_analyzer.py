@@ -20,6 +20,8 @@ class Inspector:
         if X_test is not None and y_test is not None:
             self.__X_test = X_test
             self.__y_test = y_test
+        # fit with training data
+        model.fit(X, y_true)
         if hasattr(model, 'predict_proba'):
             self.__proba_train = model.predict_proba(self.__X)[:,1]
             if X_test is not None and y_test is not None:
@@ -63,8 +65,8 @@ class Inspector:
 
     def _repr_html_(self):
         tab = HTMLtable(rows = 3, cols=3, caption=self.__caption)
-        tab[0,2] = 'Train Set'
-        tab[0,3] = 'Test Set'
+        tab[0,1] = 'Train Set'
+        tab[0,2] = 'Test Set'
         tab[1,0] = 'Accuracy'
         tab[1,1] = f'{self.accuracy[0]:.2%}'
         tab[1,2] = f'{self.accuracy[1]:.2%}' 
