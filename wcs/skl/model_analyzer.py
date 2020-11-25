@@ -22,46 +22,52 @@ class Inspector:
             self.__y_test = y_test
         # fit with training data
         model.fit(X, y_true)
-        if hasattr(model, 'predict_proba'):
+        try:
             self.__proba_train = model.predict_proba(self.__X)[:,1]
             if X_test is not None and y_test is not None:
                 self.__proba_test = model.predict_proba(self.__X_test)[:,1]
-        if hasattr(model, 'predict'):
+        except:
+            pass
+        try:
             self.__pred_y = model.predict(self.__X)
             if X_test is not None and y_test is not None:
                 self.__pred_test = model.predict(self.__X_test)
+        except:
+            pass
         
     @property
     def log_loss(self):
-        if hasattr(self, '__logloss'):
+        try:
             # cached values
             return self.__logloss
-
-        if hasattr(self, '__proba_train'):
-            train =  sm_log_loss(self.__y, self.__proba_train)
-            test = np.nan
-            if hasattr(self, '__proba_test'):
-                test = sm_log_loss(self.__y_test, self.__proba_test)
-            self.__logloss = (train, test)
-            return (train, test)
-        else:
-            self.__logloss = (np.nan, np.nan)
-            return (np.nan, np.nan)
+        except:
+            try:
+                train =  sm_log_loss(self.__y, self.__proba_train)
+                try:
+                    test = sm_log_loss(self.__y_test, self.__proba_test)
+                except:
+                    test = np.nan
+                self.__logloss = (train, test)
+                return (train, test)
+            except:
+                self.__logloss = (np.nan, np.nan)
+                return (np.nan, np.nan)
 
     @property 
     def accuracy(self):
-        if hasattr(self, '__accuracy'):
+        try:
             return self.__accuracy
-
-        if hasattr(self, '__pred_y'):
-            train = sm_accuracy(self.__y, self.__pred_y)
-            test = np.nan
-            if hasattr(self, '__pred_test'):
-                test = sm_accuracy(self.__y_test, self.__pred_test)
-            self.__accuracy = (train, test)
-            return self.__accuracy
-        else:
-            return (np.nan, np.nan)
+        except:
+            try:
+                train = sm_accuracy(self.__y, self.__pred_y)
+                try:
+                    test = sm_accuracy(self.__y_test, self.__pred_test)
+                except:
+                    test = np.nan
+                self.__accuracy = (train, test)
+                return self.__accuracy
+            except:
+                return (np.nan, np.nan)
 
     def _repr_html_(self):
         tab = HTMLtable(rows = 3, cols=3, caption=self.__caption)
@@ -80,15 +86,16 @@ class Inspector:
     
     @property
     def columns(self):
-        if hasattr(self, '__columns'):
+        try:
             #cached value
             return self.__columns
-        try:
-            cols = get_feature_names(self.__model, list(self.__X.columns))
-            self.__columns = cols
-            return self.columns
-        except Exception:
-            raise TypeError('Cannot acquire column names from model and X')
+        except:
+            try:
+                cols = get_feature_names(self.__model, list(self.__X.columns))
+                self.__columns = cols
+                return self.columns
+            except Exception:
+                raise TypeError('Cannot acquire column names from model and X')
 
 
 
