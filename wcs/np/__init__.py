@@ -114,7 +114,7 @@ def matrixInfo(matrix:np.ndarray, name:str='A', verbose:bool=False, decimals:int
     '''
     if len(matrix.shape) in [1,2]:
         printmd(f'## Overview for the {len(matrix.shape)}-dimensional matrix {name}')
-        printMatrix(matrix, name=name, decimals=decimals)
+        print_matrix(matrix, name=name, decimals=decimals)
     else:
         printmd(f'## Overview for the {len(matrix.shape)}-dimensional matrix {name}')
     eigval, eigvec = np.linalg.eig(matrix)
@@ -124,7 +124,7 @@ def matrixInfo(matrix:np.ndarray, name:str='A', verbose:bool=False, decimals:int
         printmd('The eigenvalues are the measure of scaling. Eigenvectors by numpy are normalized in length.  ')
         printmd('There might not be a solution in real space, so the eigenvectors and eigenvalues can be complex vectors and numbers respectively.  ')
         printmd('[Wikipedia link.](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors)  ')
-    printMatrix([eigvec[:,x] for x in range(eigvec.shape[0])], name=['v_{{{}}}'.format(x) for x in list(eigval)], decimals=decimals, maxSize=maxSize)
+    print_matrix([eigvec[:,x] for x in range(eigvec.shape[0])], name=['v_{{{}}}'.format(x) for x in list(eigval)], decimals=decimals, maxSize=maxSize)
     printmd('## Euclidian Norm (2nd)')
     if verbose:
         # https://en.wikipedia.org/wiki/Matrix_norm
@@ -145,7 +145,7 @@ def matrixInfo(matrix:np.ndarray, name:str='A', verbose:bool=False, decimals:int
     printmd('### Inverse')
     try:
         i = np.linalg.inv(matrix)
-        printMatrix(i, name= f'{{{name}}}^{{-1}}', decimals=decimals, maxSize=maxSize)
+        print_matrix(i, name= f'{{{name}}}^{{-1}}', decimals=decimals, maxSize=maxSize)
     except Exception as exc:
         printmd('_there is no inverse to that matrix, or at least it could not be computed._')
         print(exc)
