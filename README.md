@@ -44,6 +44,8 @@ pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:List[str]=['Posit
 
 ### wcs.skl.compose.repipe_transformer_tuples()
 *collates transformations for the same columns into Pipelines. See DocString*
+Caveat: Do **not** use if you have transformations that require multiple columns to be passed at once! The "re-piper" will 
+break them into multiple calls, for each column one call.
 
 ### wcs.skl.compose.make_transformer_list(tlist:list, withnames:bool=True)->list:
 *instantiates transformers for multiple use of the transformation list without the need of resetting them again*
@@ -69,6 +71,22 @@ Aussage: Um wieviel nimmt die Varianz ab, wenn ich die kontinuierliche Variable 
 ## NumPy tools
 ### wcs.np.print_matrix
 *nicer printout of 1 and 2-dimensional matrices in colab, can also print some matrix properties. See DocString*
+
+## Seaborn and MatplotLib tools
+### wcs.sns.corrheatmap
+Print a correlation heatmap (Pearsons) from a dataframe. Defaults to a symmtric black-white-black scale with white being at 0 correlation.
+```python
+def corrheatmap(data:pd.core.frame.DataFrame, 
+                vmax:float=1.0,
+                diagonal:bool=False,
+                decimals:int=2,
+                title:str='Correlation Matrix',
+                colors:List[str]=['black', 'white', 'black'],
+                annot:bool = True,
+                as_figure:bool=True,
+                figure_params:Dict[Any,Any]={'figsize':(12,6), 'dpi':100},
+                )
+```
 
 ## Miscellaneous
 ### wcs.tools.pltfct
