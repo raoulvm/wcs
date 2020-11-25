@@ -31,7 +31,8 @@ def corrheatmap(data:pd.core.frame.DataFrame,
     if title is not None:
         ax.set_title(title)
     if as_figure:
-        return fig
+        plt.show()
+        return None
     return ax
     
 
