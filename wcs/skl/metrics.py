@@ -3,7 +3,7 @@ from ..tools import HTMLtable
 from IPython.display import display
 from typing import List, Union
 
-def pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:List[str]=['Positive','Negative'], title:str='Confusion Matrix', texthint:str='', metrics:bool=True)->Union[object, dict]:
+def pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:List[str]=['Positive','Negative'], title:str='Confusion Matrix', texthint:str='', metrics:bool=True, as_object:bool=False)->Union[object, dict]:
     """Create a more readable HTML based confusion matrix, based on sklearn 
 
     Args:
@@ -128,7 +128,8 @@ def pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:List[str]=['P
         m.merge_cells(2+columns, 2+rows, 5+rows, 5+columns)
 
 
-
+        if as_object:
+            return m
         display(m)
         return ret_metrics
     return m

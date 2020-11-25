@@ -6,10 +6,11 @@
 from typing import Union
 import sklearn.pipeline as skpipe
 import sklearn.base as skbase
-from sklearn.metrics import log_loss as sm_log_loss, accuracy_score as sm_accuracy
+from sklearn.metrics import log_loss as sm_log_loss, accuracy_score as sm_accuracy, confusion_matrix
 import numpy as np
 from ..tools import HTMLtable
 from .compose import get_feature_names
+from .metrics import pretty_confusionmatrix
 
 class Inspector:
     def __init__(self, model:Union[skpipe.Pipeline, skbase.BaseEstimator], X, y_true, X_test=None, y_test=None, caption='Statistics'):
@@ -96,6 +97,54 @@ class Inspector:
                 return self.columns
             except Exception:
                 raise TypeError('Cannot acquire column names from model and X')
+
+    @property
+    def train_prediction(self):
+        try:
+            return self.__pred_y
+        except:
+            print('No Training Data Prediction Available')
+            return None
+    
+    @property
+    def test_prediction(self):
+        try:
+            return self.__pred_test
+        except:
+            print('No Tast Data Prediction Available')
+            return None
+    
+    @property
+    def train_proba(self):
+        try:
+            return self.__proba_train
+        except:
+            print('No Tast Data Prediction Available')
+            return None     
+
+    @property
+    def test_proba(self):
+        try:
+            return self.__proba_test
+        except:
+            print('No Tast Data Prediction Available')
+            return None     
+    
+    def get_confusion_matrix(self, test:bool=True, verbose:bool=True):
+        if test:
+            try:
+                return pretty_confusionmatrix(confusionmatrix=confusion_matrix(self.__y_test, self.__pred_test), textlabels=self.__model.classes_, title=self.__caption + ' - ' + 'Test Data', metrics=verbose )
+            except:
+                print('Cannot obtain confusion matrix for test data, None passed?')
+                return
+        try:
+            return pretty_confusionmatrix(confusionmatrix=confusion_matrix(self.__y, self.__pred_train), textlabels=self.__model.classes_, title=self.__caption + ' - ' + 'Training Data', metrics=verbose )
+        except:
+            print('Cannot obtain confusion matrix for test data, None passed?')
+            return
+        
+
+
 
 
 
