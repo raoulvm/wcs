@@ -84,7 +84,7 @@ def corrheatmap(data:pd.core.frame.DataFrame,
                 colors:List[str]=['black', 'white', 'black'],
                 annot:bool = True,
                 as_figure:bool=True,
-                figure_params:Dict[Any,Any]={'figsize':(12,6), 'dpi':100},
+                figure_params:Dict[Any,Any]={'figsize':(14,8), 'dpi':75},
                 )
 ```
 
