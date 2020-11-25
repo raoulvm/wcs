@@ -20,7 +20,24 @@ from wcs.google import google_drive_share
 ### wcs.skl.metrics.pretty_confusionmatrix()
 *can print nicer explainable confusion matrices. pass it a confusion matrix and enjoy.* **Work In Progress Warning**  
 **new location since v. 0.0.17**
+```python
+pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:List[str]=['Positive','Negative'], title:str='Confusion Matrix', texthint:str='', metrics:bool=True)->Union[object, dict]:
+    """Create a more readable HTML based confusion matrix, based on sklearn 
 
+    Args:
+        confusionmatrix (np.ndarray): a sklearn.metrics.confusionmatrix  
+        textlabels (List[str], optional): The class labels as list of strings. 
+            Defaults to ['Positive','Negative'].  
+        title (str, optional): The confusion matrix' title. Defaults to 'Confusion Matrix'.
+        texthint (str, optional): Text to print in the top left corner. Defaults to ''. 
+            If an empty string (default) is passed, print the population number.  
+        metrics (bool, optional): Print the confusion matrix immediately, and return a 
+            dict with the metrices. Defaults to True. If set to False, the function 
+                returns the confusion metrix as HTMLTable object.
+
+    Returns:
+        Union[HTMLTable, dict]: The matrix as HTMLTable if `metrics` is set to False, a dict with the metrics otherwise (Default)
+```
 ### wcs.skl.compose.get_feature_names()
 *returns the output columns of e.g. a column transformer with nested pipelines*
 

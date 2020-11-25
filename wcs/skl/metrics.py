@@ -1,8 +1,25 @@
 import numpy as np
 from ..tools import HTMLtable
 from IPython.display import display
+from typing import List, Union
 
-def pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:list=['Positive','Negative'], title:str='Confusion Matrix', texthint:str='', metrics:bool=True)->None:
+def pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:List[str]=['Positive','Negative'], title:str='Confusion Matrix', texthint:str='', metrics:bool=True)->Union[object, dict]:
+    """Create a more readable HTML based confusion matrix, based on sklearn 
+
+    Args:
+        confusionmatrix (np.ndarray): a sklearn.metrics.confusionmatrix  
+        textlabels (List[str], optional): The class labels as list of strings. 
+            Defaults to ['Positive','Negative'].  
+        title (str, optional): The confusion matrix' title. Defaults to 'Confusion Matrix'.
+        texthint (str, optional): Text to print in the top left corner. Defaults to ''. 
+            If an empty string (default) is passed, print the population number.  
+        metrics (bool, optional): Print the confusion matrix immediately, and return a 
+            dict with the metrices. Defaults to True. If set to False, the function 
+                returns the confusion metrix as HTMLTable object.
+
+    Returns:
+        Union[HTMLTable, dict]: The matrix as HTMLTable if `metrics` is set to False, a dict with the metrics otherwise (Default)
+    """
     if not isinstance(confusionmatrix, np.ndarray):
         confusionmatrix = np.array(confusionmatrix)
     def mtext(text: str, hover: str = None):
