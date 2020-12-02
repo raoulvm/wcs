@@ -1,0 +1,1 @@
+from .__geoplot import bokeh_geoplot as geoplot
