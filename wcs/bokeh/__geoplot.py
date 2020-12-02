@@ -3,6 +3,7 @@
 from bokeh.io import output_notebook
 from bokeh.models import ColumnDataSource
 from numpy import sin, log, arcsin, exp
+import pandas as pd
 
 #from bokeh.models import DataRange1d, Plot, LinearAxis, Grid, CDSView, GroupFilter, widgets, CustomJS, Button
 #from bokeh.models.glyphs import Patches, wedges#, Patch
