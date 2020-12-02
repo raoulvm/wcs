@@ -114,13 +114,13 @@ class bokeh_geoplot:
 
         if self.title is not None:
             self.plot.title.text = self.title
-            self.plot.xaxis.axis_label = 'Longitude'
-            self.plot.yaxis.axis_label = 'Latitude'
+
 
         if self.axes_visible:
             self.plot.add_layout(MercatorAxis( dimension='lon'), 'below')
             self.plot.add_layout(MercatorAxis( dimension='lat'), 'left')
-
+            self.plot.xaxis.axis_label = 'Longitude'
+            self.plot.yaxis.axis_label = 'Latitude'
 
         #title=self.title,
 
