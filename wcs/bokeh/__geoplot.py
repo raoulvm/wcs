@@ -116,7 +116,7 @@ class bokeh_geoplot:
             self.plot.title.text = self.title
             self.plot.xaxis.axis_label = 'Longitude'
             self.plot.yaxis.axis_label = 'Latitude'
-                        
+
         if self.axes_visible:
             self.plot.add_layout(MercatorAxis( dimension='lon'), 'below')
             self.plot.add_layout(MercatorAxis( dimension='lat'), 'left')
@@ -135,7 +135,8 @@ class bokeh_geoplot:
             # color, if not provided
             set_default(kwargs, 'fill_color', palette[key])
             set_default(kwargs, 'fill_alpha', 1)
-            set_default(kwargs, 'size', (self.x_range[1]-self.x_range[0])/50000)
+            if isinstance(item['glyph'],Circle):
+                set_default(kwargs, 'size', (self.x_range[1]-self.x_range[0])/50000)
 
             # Instanciate the glyph
             glyph = item['glyph'](**kwargs)

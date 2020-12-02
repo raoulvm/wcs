@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='wcs',
-    version='0.3.2',
+    version='0.3.3',
     description='wcs tools for colab and co',
     url='git@github.com/snowdd1/wcs.git',
     author='Raoul',
