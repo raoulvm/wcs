@@ -135,7 +135,7 @@ class bokeh_geoplot:
             # color, if not provided
             set_default(kwargs, 'fill_color', palette[key])
             set_default(kwargs, 'fill_alpha', 1)
-            if isinstance(item['glyph'],Circle):
+            if item['glyph'] == Circle:
                 set_default(kwargs, 'size', (self.x_range[1]-self.x_range[0])/50000)
 
             # Instanciate the glyph
