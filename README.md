@@ -47,6 +47,9 @@ pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:List[str]=['Posit
 Caveat: Do **not** use if you have transformations that require multiple columns to be passed at once! The "re-piper" will 
 break them into multiple calls, for each column one call.
 
+### wcs.skl.preprocessing.Winsor()
+Winsorization Transformer, supports fit() and tranform() compatible to other sklearn transformers.
+
 ### wcs.skl.compose.make_transformer_list(tlist:list, withnames:bool=True)->list:
 *instantiates transformers for multiple use of the transformation list without the need of resetting them again*
 
@@ -66,7 +69,7 @@ Wie rcat(), aber mit Gewichtung der Varianzen durch die Gruppengroessen (weniger
 ### wcs.np.print_matrix
 *nicer printout of 1 and 2-dimensional matrices in colab, can also print some matrix properties. See DocString*
 
-## Seaborn and MatplotLib tools
+## Seaborn, MatplotLib and Bokeh tools
 ### wcs.sns.corrheatmap
 Print a correlation heatmap (Pearsons) from a dataframe. Defaults to a symmtric black-white-black scale with white being at 0 correlation.
 ```python
@@ -81,6 +84,8 @@ def corrheatmap(data:pd.core.frame.DataFrame,
                 figure_params:Dict[Any,Any]={'figsize':(14,8), 'dpi':75},
                 )
 ```
+### wcs.bokeh.Geoplot
+Easily create a simple interactive geo plot from lat/lon coordinates without fighting the windmills axes.
 
 ## Miscellaneous
 ### wcs.tools.pltfct
