@@ -22,7 +22,7 @@ from bokeh.palettes import inferno
 from typing import List, Dict
 
 class bokeh_geoplot:
-    def __init__(self, tools:str='pan, wheel_zoom, reset', plot_width:int=700, plot_height:int=700, title:str='Geoplot', axes_visible:bool=True, palette:'bokeh.palette.func'=inferno):
+    def __init__(self, tools:str='pan, wheel_zoom, reset', plot_width:int=700, plot_height:int=700, title:str='Geoplot', axes_visible:bool=True, palette=inferno):
         self.tools=tools
         self.plot_width=plot_width
         self.plot_height=plot_height
