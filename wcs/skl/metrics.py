@@ -2,8 +2,15 @@ import numpy as np
 from ..tools import HTMLtable
 from IPython.display import display
 from typing import List, Union
+from sklearn.metrics import confusion_matrix
+from pandas import Series as pdSeries
 
-def pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:List[str]=['Positive','Negative'], title:str='Confusion Matrix', texthint:str='', metrics:bool=True, as_object:bool=False)->Union[object, dict]:
+def pretty_confusionmatrix( confusionmatrix: np.ndarray, 
+                            textlabels:List[str]=['Positive','Negative'], 
+                            title:str='Confusion Matrix', 
+                            texthint:str='', 
+                            metrics:bool=True, 
+                            as_object:bool=False)->Union[object, dict]:
     """Create a more readable HTML based confusion matrix, based on sklearn 
 
     Args:
@@ -16,6 +23,8 @@ def pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:List[str]=['P
         metrics (bool, optional): Print the confusion matrix immediately, and return a 
             dict with the metrices. Defaults to True. If set to False, the function 
                 returns the confusion metrix as HTMLTable object.
+        order (str, optional, default = 'sklearn): The orientation of the input/output matrix. Can be 'sklearn' or 'wikipedia'
+        as_object: If calculating metrics (metrics=True), return only the confusion matrix table with metrics, and no dict of metrics.
 
     Returns:
         Union[HTMLTable, dict]: The matrix as HTMLTable if `metrics` is set to False, a dict with the metrics otherwise (Default)
@@ -134,3 +143,33 @@ def pretty_confusionmatrix(confusionmatrix: np.ndarray, textlabels:List[str]=['P
         return ret_metrics
     return m
 
+
+def confusion(y_true:list, y_predict:list, labels:list='auto', textlabels:List[str]=None, title:str='Confusion Matrix'):
+    """Generate a HTMLTable with confusion matrix details
+       Will SORT the LABELS (if none are provided) from the data descending, assuming the Highest Value is the "Positive" label.
+
+    Args:
+        y_true (list): True Values 
+        y_predict (list): Predicted Values
+        labels (list, optional): The List of labels in the values, stating with the POSITIVE label!. Defaults to 'auto'.
+        textlabels (List[str], optional): The decription you want to have in the confusion matrix printout, same order as in `labels`. Defaults to ['Positive', 'Negative'].
+        title (str, optional): The header for the table printout. Defaults to 'Confusion Matrix'.
+
+    Raises:
+        ValueError: [description]
+
+    Returns:
+        [type]: [description]
+    """
+    if len(y_true)!=len(y_predict):
+        raise ValueError('Lengths are different!')
+    if isinstance(labels, str) and labels=='auto':
+        print(sorted(pdSeries(y_true).append(pdSeries(y_predict)).unique(), reverse=True))
+        labels = sorted(pdSeries(y_true).append(pdSeries(y_predict)).unique(), reverse=True)
+        print(labels)
+        if textlabels is None:
+            if isinstance(labels[0],str):
+                textlabels = labels
+    if textlabels is None: 
+        textlabels = ['Positive', 'Negative']
+    return pretty_confusionmatrix( confusionmatrix= confusion_matrix(y_true, y_predict, labels=labels), title=title, textlabels=textlabels, metrics=True, as_object=True)
