@@ -23,7 +23,7 @@ class Winsor(TransformerMixin):
 
     '''
     def __init__(self, 
-                       q_cut:float=0.25,
+                       q_cut:float=0.025,
                        q_low_cut:float=None,
                        q_high_cut:float=None,
                        name:str="winsor",
