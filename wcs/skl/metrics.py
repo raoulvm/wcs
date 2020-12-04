@@ -144,7 +144,7 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
     return m
 
 
-def confusion(y_true:list, y_predict:list, labels:list='auto', textlabels:List[str]=['Positive', 'Negative'], title:str='Confusion Matrix'):
+def confusion(y_true:list, y_predict:list, labels:list='auto', textlabels:List[str]=None, title:str='Confusion Matrix'):
     """Generate a HTMLTable with confusion matrix details
        Will SORT the LABELS (if none are provided) from the data descending, assuming the Highest Value is the "Positive" label.
 
@@ -163,9 +163,13 @@ def confusion(y_true:list, y_predict:list, labels:list='auto', textlabels:List[s
     """
     if len(y_true)!=len(y_predict):
         raise ValueError('Lengths are different!')
-    if isinstance(labels, str) and labels=='Auto':
-        labels = pdSeries(y_true).append(pdSeries(y_predict)).unique().sort()[::-1]
-    return pretty_confusionmatrix(confusion_matrix= confusion_matrix(y_true, y_predict, labels=labels), title=title, textlabels=textlabels, metrics=True, as_object=True)
-
-
-
+    if isinstance(labels, str) and labels=='auto':
+        print(sorted(pdSeries(y_true).append(pdSeries(y_predict)).unique(), reverse=True))
+        labels = sorted(pdSeries(y_true).append(pdSeries(y_predict)).unique(), reverse=True)
+        print(labels)
+        if textlabels is None:
+            if isinstance(labels[0],str):
+                textlabels = labels
+    if textlabels is None: 
+        textlabels = ['Positive', 'Negative']
+    return pretty_confusionmatrix( confusionmatrix= confusion_matrix(y_true, y_predict, labels=labels), title=title, textlabels=textlabels, metrics=True, as_object=True)

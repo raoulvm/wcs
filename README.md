@@ -17,6 +17,8 @@ from wcs.google import google_drive_share
 *Helps with loading files from google drive links. See docString*
 
 ## SciKit Learn Tools
+### wcs.skl.metrics.confusion(y_true, y_predict, [labels], [textlables], [title])
+Shorthand for wcs.skl.metrics.pretty_confusionmatrix() with an inner sklearn.metrics.confusion_matrix(), with auto sorting the POSITIVE label to be 1 and the negative label to be 0, if the values support this assumption.
 ### wcs.skl.metrics.pretty_confusionmatrix()
 *can print nicer explainable confusion matrices. pass it a confusion matrix and enjoy.* **Work In Progress Warning**  
 **new location since v. 0.0.17**
