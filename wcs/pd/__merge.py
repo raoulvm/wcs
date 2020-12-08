@@ -38,7 +38,8 @@ def fuzzyrightjoin(df_left:DataFrame,
 
         df_right (pd.core.frame.DataFrame): right DataFrame  
 
-        func (Callable[[Any], float]): function to call on columns given in next two parameters  
+        func (Callable[[Any], float]): function to call on columns given in next two parameters. Can alternatively be 'euclidian' 
+            to use simple l2 norm, requires x and y coordinates in data frames to be passed in the next two parameters.  
 
         params_left (List[str]): column names from left DataFrame to be passed to `func`   
 
@@ -64,12 +65,12 @@ def fuzzyrightjoin(df_left:DataFrame,
 
     Raises:
     -------
-        NotImplemented: [description]
-        ValueError: [description]
+        ValueError: If the parameter key words are not matched.
+        Will not catch any exception from used pandas or custom functions.
 
     Returns:
     --------
-        pd.core.frame.DataFrame: [description]
+        pd.core.frame.DataFrame: The resulting dataframe after merging and filtering
 
 
     Examples
@@ -98,7 +99,7 @@ def fuzzyrightjoin(df_left:DataFrame,
     paramsl = []
     for p in params_left:
         if p in params_right:
-            # duplicate column, will have gotten an a _x attached above
+            # duplicate column, will get an a _x attached in merge below
             paramsl += [p+'_x']
         else:
             # unique
@@ -106,7 +107,7 @@ def fuzzyrightjoin(df_left:DataFrame,
     paramsr = []
     for p in params_right:
         if p in params_left:
-            # duplicate column, will have gotten an a _y attached above
+            # duplicate column, will get an a _y attached in merge below
             paramsr += [p+'_y']
         else:
             # unique
