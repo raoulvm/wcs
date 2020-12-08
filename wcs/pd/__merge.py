@@ -118,7 +118,7 @@ def fuzzyrightjoin(df_left:DataFrame,
 
     # function for doing cross join on a groupby object
     def single_join(df_right):
-        df_cross = pd.merge(left=df_left.assign(dummy_CAFFEEHEX=1).rename_axis('left_index').reset_index(), 
+        df_cross = merge(left=df_left.assign(dummy_CAFFEEHEX=1).rename_axis('left_index').reset_index(), 
                             right=df_right.assign(dummy_CAFFEEHEX=1).rename_axis('right_index').reset_index(), 
                             how='inner', on='dummy_CAFFEEHEX').drop(columns=['dummy_CAFFEEHEX'])
 
