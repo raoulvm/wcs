@@ -1,11 +1,3 @@
-# assuming the samples is much bigger than the cities (or clusters or whatever) list.
-
-# two possibilities: cross join and calculate the min distance; iterate and calculate the min for each sample consecutively
-
-# 1 Cross Join
-
-# minimum aggregation, from right to left ==> search the smallest distance for each right_index group
-
 from typing import Tuple, Callable, List, Any
 import numpy as np
 from pandas.core.frame import DataFrame
