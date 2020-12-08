@@ -2,6 +2,10 @@
 import pandas as pd
 import numpy as np
 from scipy import stats
+
+from .__merge import fuzzyrightjoin
+
+
 #
 def df_more_info(df:pd.core.frame.DataFrame): 
     """

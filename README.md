@@ -16,6 +16,13 @@ from wcs.google import google_drive_share
 ### wcs.google.google_drive_share
 *Helps with loading files from google drive links. See docString*
 
+## Pandas Tools
+### wcs.pd.df_more_info(dataframe) 
+More than df.info(), less than pandas_profiling. Just between.
+
+### wcs.pd.fuzzyrightjoin
+Lookup-join supporting function based min/max/threshold conditions. See DocString!
+
 ## SciKit Learn Tools
 ### wcs.skl.metrics.confusion(y_true, y_predict, [labels], [textlables], [title])
 Shorthand for wcs.skl.metrics.pretty_confusionmatrix() with an inner sklearn.metrics.confusion_matrix(), with auto sorting the POSITIVE label to be 1 and the negative label to be 0, if the values support this assumption.
@@ -70,6 +77,12 @@ Wie rcat(), aber mit Gewichtung der Varianzen durch die Gruppengroessen (weniger
 ## NumPy tools
 ### wcs.np.print_matrix
 *nicer printout of 1 and 2-dimensional matrices in colab, can also print some matrix properties. See DocString*
+
+### wcs.np.geodistances.haversine_df(dataframe)
+Calculates haversine based great circle distances on a dataframe. Dataframe has to have four columns: `lon1, lat1, lon2, lat2` (names do not matter, it is `iloc[]` based)
+
+### wcs.np.geodistances.great_circle_distance(lon1, lat1, lon2, lat2)
+Calculates haversine based great circle distances on two sets of longitude/latitude
 
 ## Seaborn, MatplotLib and Bokeh tools
 ### wcs.sns.corrheatmap
