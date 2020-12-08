@@ -1,8 +1,9 @@
 from typing import Tuple, Callable, List, Any
 import numpy as np
 from pandas.core.frame import DataFrame
-from pandas import merge
-
+from pandas import merge, concat
+from joblib import Parallel, delayed
+import multiprocessing
 
 
 
@@ -15,6 +16,7 @@ def fuzzyrightjoin(df_left:DataFrame,
                how:str='smallest',
                threshold:float=None,
                lowmem_chunksize:int=None,
+               multithreaded:bool=False,
                )->DataFrame:
     """performs a RIGHT JOIN between two Pandas DataFrames using a function to be 
     fed with columns from both dataframes, and joining on either:
@@ -88,6 +90,18 @@ def fuzzyrightjoin(df_left:DataFrame,
         func_type='built-in euclidian'
    
 
+    # support multiple processors:
+    def applyParallel(dfGrouped, func, *args):
+        '''
+        runs an pandas.DataFrame.groupby().apply(func) in parallel.
+        Usage:
+        applyParallel(pandas.DataFrame.groupby(), func) 
+        '''
+        retLst = Parallel(n_jobs=multiprocessing.cpu_count())(delayed(func)(group, args) for name, group in dfGrouped)
+        return concat(retLst)
+
+
+
     paramsl = []
     for p in params_left:
         if p in params_right:
@@ -110,7 +124,7 @@ def fuzzyrightjoin(df_left:DataFrame,
         lowmem_chunksize = len(df_right)*2+1 # all at once
 
     # function for doing cross join on a groupby object
-    def single_join(df_right):
+    def single_join(df_right, *args_catcher):
         df_cross = merge(left=df_left.assign(dummy_CAFFEEHEX=1).rename_axis('left_index').reset_index(), 
                             right=df_right.assign(dummy_CAFFEEHEX=1).rename_axis('right_index').reset_index(), 
                             how='inner', on='dummy_CAFFEEHEX').drop(columns=['dummy_CAFFEEHEX'])
@@ -138,8 +152,10 @@ def fuzzyrightjoin(df_left:DataFrame,
 
     # establish the chunks
     df_newright = df_right.assign(dummy_CAFFEECHUNK = np.arange(len(df_right))//lowmem_chunksize)
-
-    return df_newright.groupby('dummy_CAFFEECHUNK', as_index=False).apply(single_join).reset_index(drop=True)
+    if multithreaded:
+        return applyParallel(df_newright.reset_index(drop=True).groupby('dummy_CAFFEECHUNK', as_index=False), single_join).reset_index(drop=True)
+    else:
+        return df_newright.groupby('dummy_CAFFEECHUNK', as_index=False).apply(single_join).reset_index(drop=True)
 
 # 2 Iterative (memory optimized)
 
