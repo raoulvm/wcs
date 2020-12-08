@@ -27,7 +27,7 @@ def haversine_df(x:pd.core.frame.DataFrame):
 def great_circle_distance(lon1, lat1, lon2, lat2):
     """
     Calculate the great circle distance between two points 
-    on the earth (specified in decimal degrees)
+    on the earth (specified in decimal degrees), based on the haversine formula
     """
     # convert decimal degrees to radians 
     lon1, lat1, lon2, lat2 = map(np.radians, [lon1, lat1, lon2, lat2])

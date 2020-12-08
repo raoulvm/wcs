@@ -22,6 +22,7 @@ def fuzzyrightjoin(df_left:DataFrame,
                func_type:str='Single',
                how:str='smallest',
                threshold:float=None,
+               lowmem_chunksize:int=None,
                )->DataFrame:
     """performs a RIGHT JOIN between two Pandas DataFrames using a function to be 
     fed with columns from both dataframes, and joining on either:
@@ -59,6 +60,8 @@ def fuzzyrightjoin(df_left:DataFrame,
 
         threshold (float, optional): [description]. Defaults to None.
 
+        lowmem_chunksize (int, optional): If  memory consumption is relevant, the chunk_size can be reduced (from all at once)
+
     Raises:
     -------
         NotImplemented: [description]
@@ -72,53 +75,78 @@ def fuzzyrightjoin(df_left:DataFrame,
     Examples
     --------
 
-                Default for searching closest geographical relations between left and right dataframes, 
-                to join the "closest" point from left dataframe to each of the records from the right dataframe.
-                E.g. df_small is list of cities with coordinates, df_large is customer gps records, and for
-                each gps record you want to find the closest city.
-                For geo distances you can use wcs.np.geodistances
+        For searching closest geographical relations between left and right dataframes, 
+        to join the "closest" point from left dataframe to each of the records from the right dataframe.
+        E.g. df_left is list of cities with coordinates, df_right is customer gps records, and for
+        each gps record you want to find the closest city.
+        For geo distances you can use wcs.np.geodistances.haversine_df
+
+
 
 
     """  # DOCSTRING END
 
-    df_cross = merge(left=df_left.assign(dummy_CAFFEEHEX=1).rename_axis('left_index').reset_index(), 
-                        right=df_right.assign(dummy_CAFFEEHEX=1).rename_axis('right_index').reset_index(), 
-                        how='inner', on='dummy_CAFFEEHEX').drop(columns=['dummy_CAFFEEHEX'])
+    def euclidian_df(df1, df2)->float:
+        return np.sqrt(np.sum([(df1[c1]-df2[c2])**2 for (c1,c2) in zip(df1.columns, df2.columns)], axis=0))
 
-    params = []
+    if isinstance(func, str) and func.lower()=='euclidian':
+        #print('use built-in euclidian function')
+        func = euclidian_df
+        func_type='built-in euclidian'
+   
+
+    paramsl = []
     for p in params_left:
         if p in params_right:
             # duplicate column, will have gotten an a _x attached above
-            params += [p+'_x']
+            paramsl += [p+'_x']
         else:
             # unique
-            params += [p]
-
+            paramsl += [p]
+    paramsr = []
     for p in params_right:
         if p in params_left:
             # duplicate column, will have gotten an a _y attached above
-            params += [p+'_y']
+            paramsr += [p+'_y']
         else:
             # unique
-            params += [p]
+            paramsr += [p]
+    params = paramsl + paramsr
 
-    if func_type.lower() in ['dataframe']:
-        df_cross = df_cross.assign(dummy_CAFFEEDISTANCE = func(df_cross[params]))
-    elif func_type.lower() in ['single']:
-        df_cross = df_cross.assign(dummy_CAFFEEDISTANCE = df_cross[params].apply(lambda rec: func(*rec), axis=1))
-    else:
-        raise ValueError(f'Parameter error: func_type of "{func_type}"" not in ["DataFrame","Single"]' )
+    if not isinstance(lowmem_chunksize, int):
+        lowmem_chunksize = len(df_right)*2+1 # all at once
 
-    if how.lower() in ['smallest','nearest','closest','min']:
-        return df_cross.groupby('right_index', as_index=False).apply(lambda x: x.iloc[x['dummy_CAFFEEDISTANCE'].argmin()]).drop(columns=['dummy_CAFFEEDISTANCE'])
-    elif  how.lower() in ['largest','max']:
-        return df_cross.groupby('right_index', as_index=False).apply(lambda x: x.iloc[x['dummy_CAFFEEDISTANCE'].argmax()]).drop(columns=['dummy_CAFFEEDISTANCE'])
-    elif  how.lower() in ['minimum_threshold']:
-        return df_cross[df_cross['dummy_CAFFEEDISTANCE']>=threshold].drop(columns=['dummy_CAFFEEDISTANCE'])
-    elif how.lower() in ['maximum_threshold']:
-        return df_cross[df_cross['dummy_CAFFEEDISTANCE']<=threshold].drop(columns=['dummy_CAFFEEDISTANCE'])
-    else:
-        raise ValueError(f"how={how} not recognized.")
+    # function for doing cross join on a groupby object
+    def single_join(df_right):
+        df_cross = pd.merge(left=df_left.assign(dummy_CAFFEEHEX=1).rename_axis('left_index').reset_index(), 
+                            right=df_right.assign(dummy_CAFFEEHEX=1).rename_axis('right_index').reset_index(), 
+                            how='inner', on='dummy_CAFFEEHEX').drop(columns=['dummy_CAFFEEHEX'])
+
+        if func_type.lower() in ['dataframe']:
+            df_cross = df_cross.assign(dummy_CAFFEEDISTANCE = func(df_cross[params]))
+        elif func_type.lower() in ['single']:
+            df_cross = df_cross.assign(dummy_CAFFEEDISTANCE = df_cross[params].apply(lambda rec: func(*rec), axis=1))
+        elif func_type.lower() in  ['built-in euclidian']:
+            df_cross = df_cross.assign(dummy_CAFFEEDISTANCE = func(df_cross[paramsl], df_cross[paramsr]))
+        else:
+            raise ValueError(f'Parameter error: func_type of "{func_type}"" not in ["DataFrame","Single"]' )
+
+
+        if how.lower() in ['smallest','nearest','closest','min']:
+            return df_cross.groupby('right_index', as_index=False).apply(lambda x: x.iloc[x['dummy_CAFFEEDISTANCE'].argmin()]).drop(columns=['dummy_CAFFEEDISTANCE','dummy_CAFFEECHUNK'])
+        elif  how.lower() in ['largest','max']:
+            return df_cross.groupby('right_index', as_index=False).apply(lambda x: x.iloc[x['dummy_CAFFEEDISTANCE'].argmax()]).drop(columns=['dummy_CAFFEEDISTANCE','dummy_CAFFEECHUNK'])
+        elif  how.lower() in ['minimum_threshold']:
+            return df_cross[df_cross['dummy_CAFFEEDISTANCE']>=threshold].drop(columns=['dummy_CAFFEEDISTANCE', 'dummy_CAFFEECHUNK'])
+        elif how.lower() in ['maximum_threshold']:
+            return df_cross[df_cross['dummy_CAFFEEDISTANCE']<=threshold].drop(columns=['dummy_CAFFEEDISTANCE', 'dummy_CAFFEECHUNK'])
+        else:
+            raise ValueError(f"how={how} not recognized.")
+
+    # establish the chunks
+    df_newright = df_right.assign(dummy_CAFFEECHUNK = np.arange(len(df_right))//lowmem_chunksize)
+
+    return df_newright.groupby('dummy_CAFFEECHUNK', as_index=False).apply(single_join).reset_index(drop=True)
 
 # 2 Iterative (memory optimized)
 
