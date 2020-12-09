@@ -5,7 +5,7 @@ for Google Colaboratory
 
 # install and import:
 ```python
-!pip install "git+http://github.com/snowdd1/wcs.git" --upgrade >/dev/null
+!pip install "http://github.com/snowdd1/wcs/archive/main.zip" --upgrade>/dev/null
 # e.g.: import google drive share helper
 from wcs.google import google_drive_share
 ```
