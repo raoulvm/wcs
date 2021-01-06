@@ -1,10 +1,10 @@
-from sklearn.base import TransformerMixin
-from typing import List
-import pandas as pd
+from sklearn.base import TransformerMixin as _TransformerMixin
+from typing import List as _List
+import pandas as _pd
 import numpy as np
 from sklearn import linear_model
 
-class LinRegImputer(TransformerMixin):
+class LinRegImputer(_TransformerMixin):
     '''
     Linear Regression Imputer
     The linear regression imputer will build a model based on the second column to derive the first column passed. So it needs to get exactly two columns passed!
@@ -29,7 +29,7 @@ class LinRegImputer(TransformerMixin):
         self.name = name
         self.verbose = verbose
         
-    def __return_feature_names(self, s:List=None):
+    def __return_feature_names(self, s:_List=None):
         pname = self.name+'__' if self.name is not None else ''
         if isinstance(s, list) and len(s)>0 and isinstance(s[0], str): 
             return [s[0]+'__'+pname+self.__features]
@@ -39,7 +39,7 @@ class LinRegImputer(TransformerMixin):
         if self.verbose:
             print(self.name, 'fit() called!')
             print('X is ', type(X))
-        if isinstance(X, pd.core.frame.DataFrame):
+        if isinstance(X, _pd.core.frame.DataFrame):
             self.__features = X.columns[0]
             self.get_feature_names = self.__return_feature_names
         if len(X.shape)!=2:
@@ -47,10 +47,10 @@ class LinRegImputer(TransformerMixin):
         if X.shape[1]!=2:
             raise ValueError('Data must be exactely 2 columns, one to be imputed and one for the linear regression (independent variable).')
         # fitting: built the lin reg
-        if isinstance(X, pd.core.frame.DataFrame):
+        if isinstance(X, _pd.core.frame.DataFrame):
             Z=X.dropna().astype(float)
         else:
-            Z=pd.DataFrame(X).dropna().astype(float)
+            Z=_pd.DataFrame(X).dropna().astype(float)
         pearson = np.corrcoef(Z, rowvar=False)[0,1]
         if pearson<self.low_correlation_threshold:
             if self.low_correlation_handling=='raise':
@@ -74,10 +74,10 @@ class LinRegImputer(TransformerMixin):
             raise ValueError('Data is not 2 dimensional. Either use np.reshape(-1,1) or double square brackets with pd.DataFrames!')
         if X.shape[1]!=2:
                 raise ValueError('Data must be exactely 2 columns, one to be imputed and one for the linear regression (independent variable).')
-        if isinstance(X, pd.core.frame.DataFrame):
+        if isinstance(X, _pd.core.frame.DataFrame):
             X2 = X.copy()
         else: 
-            X2 = pd.DataFrame(X,copy=True)
+            X2 = _pd.DataFrame(X,copy=True)
         if self.verbose:
             print(X2.iloc[:,0].isnull().sum(), "nulls in target column")
             print(X2.iloc[:,1].isnull().sum(), "nulls in source column")
@@ -85,7 +85,7 @@ class LinRegImputer(TransformerMixin):
         
         mask = X2.iloc[:,1].notnull()
         pred = self.lm.predict(X2[mask].iloc[:,[1]])
-        ser = pd.DataFrame(pred).iloc[:,0]
+        ser = _pd.DataFrame(pred).iloc[:,0]
         
         X2[X2.columns[0]][mask] = X2[X2.columns[0]][mask].fillna(ser) # boolean filter must be last, otherwise we're working on a copy again!
         return X2.iloc[:,[0]] # return only fixed first column!

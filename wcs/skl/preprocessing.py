@@ -1,9 +1,9 @@
-from sklearn.base import TransformerMixin
-from typing import List
-import pandas as pd
-import numpy as np
+from sklearn.base import TransformerMixin as _TransformerMixin
+from typing import List as _List
+import pandas as _pd 
+import numpy as _np
 
-class Winsor(TransformerMixin):
+class Winsor(_TransformerMixin):
     '''
     Winsorization Transformer
     Extreme values, defined by quantiles, will be set the to quantile value 
@@ -41,7 +41,7 @@ class Winsor(TransformerMixin):
         self.name = name
         self.verbose = verbose
         
-    def __return_feature_names(self, s:List=None):
+    def __return_feature_names(self, s:_List=None):
         pname = self.name+'_' if self.name is not None else ''
         if isinstance(s, list) and len(s)>0 and isinstance(s[0], str): 
             return [s[0]+'__'+pname+c for c in self.__features]
@@ -51,14 +51,14 @@ class Winsor(TransformerMixin):
         if self.verbose:
             print(self.name, 'fit() called!')
             print('X is ', type(X))
-        if isinstance(X, pd.core.frame.DataFrame):
+        if isinstance(X, _pd.core.frame.DataFrame):
             self.__features = X.columns
             self.get_feature_names = self.__return_feature_names
         if len(X.shape)!=2:
             raise ValueError('Data is not 2 dimensional. Either use np.reshape(-1,1) or double square brackets with pd.DataFrames!')
 
         # fitting: get the quantiles
-        self.quantiles_ = np.quantile(X, q=[self.q_low_cut,self.q_high_cut], axis=0)
+        self.quantiles_ = _np.quantile(X, q=[self.q_low_cut,self.q_high_cut], axis=0)
         if self.verbose:
             print('Quantiles')
             print(self.quantiles_)
@@ -71,7 +71,7 @@ class Winsor(TransformerMixin):
         if len(X.shape)!=2:
             raise ValueError('Data is not 2 dimensional. Either use np.reshape(-1,1) or double square brackets with pd.DataFrames!')
 
-        if isinstance(X, pd.core.frame.DataFrame):
+        if isinstance(X, _pd.core.frame.DataFrame):
             X2 = X.to_numpy(copy=True)
         else: 
             X2 = X.copy()
@@ -87,7 +87,7 @@ class Winsor(TransformerMixin):
     def __repr__(self):
         return f"Winsor(q_low_cut={self.q_low_cut}, q_high_cut={self.q_high_cut}, name={self.name}, verbose={self.verbose}) "
 
-class Winsor_absolute(TransformerMixin):
+class Winsor_absolute(_TransformerMixin):
     '''
     Winsorization Transformer
     Extreme values, defined by absolutes, will be set the to min max value 
@@ -115,7 +115,7 @@ class Winsor_absolute(TransformerMixin):
         self.name = name
         self.verbose = verbose
         
-    def __return_feature_names(self, s:List=None):
+    def __return_feature_names(self, s:_List=None):
         pname = self.name+'_' if self.name is not None else ''
         if isinstance(s, list) and len(s)>0 and isinstance(s[0], str): 
             return [s[0]+'__'+pname+c for c in self.__features]
@@ -125,7 +125,7 @@ class Winsor_absolute(TransformerMixin):
         if self.verbose:
             print(self.name, 'fit() called!')
             print('X is ', type(X))
-        if isinstance(X, pd.core.frame.DataFrame):
+        if isinstance(X, _pd.core.frame.DataFrame):
             self.__features = X.columns
             self.get_feature_names = self.__return_feature_names
         if len(X.shape)!=2:
@@ -139,7 +139,7 @@ class Winsor_absolute(TransformerMixin):
         if len(X.shape)!=2:
             raise ValueError('Data is not 2 dimensional. Either use np.reshape(-1,1) or double square brackets with pd.DataFrames!')
 
-        if isinstance(X, pd.core.frame.DataFrame):
+        if isinstance(X, _pd.core.frame.DataFrame):
             X2 = X.to_numpy(copy=True)
         else: 
             X2 = X.copy()
