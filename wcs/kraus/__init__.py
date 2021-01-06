@@ -181,7 +181,7 @@ def _prepare_histogram_line_chart(df: pd.DataFrame,
     residual_col = 'RESIDUUM'
     logloss_col = 'LOGLOSS'
 
-    if pred_col = "xyz_pred_xyz":
+    if pred_col == "xyz_pred_xyz":
         # dummy only
         df2 = df.assign(**{residual_col: 0,
                     logloss_col: 0
