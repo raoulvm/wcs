@@ -32,9 +32,9 @@ class LinRegImputer(TransformerMixin):
     def __return_feature_names(self, s:List=None):
         pname = self.name+'_' if self.name is not None else ''
         if isinstance(s, list) and len(s)>0 and isinstance(s[0], str): 
-            return [s[0]+'__'+pname+c for c in self.__features]
+            return s[0]+'__'+pname+self.__features
         else:
-            return [pname+c for c in self.__features]
+            return pname+self.__features
     def fit(self, X, y=None):
         if self.verbose:
             print(self.name, 'fit() called!')
