@@ -109,7 +109,7 @@ class Winsor_absolute(TransformerMixin):
 
         self.high_cut = high_cut
         self.low_cut = low_cut
-        if self.high_cut<=self.low_cut :
+        if self.high_cut is not None and self.low_cut is not None and self.high_cut<=self.low_cut :
             raise ValueError(f'Values must be float and low_cut < high_cut, got {low_cut},{high_cut}')
 
         self.name = name
