@@ -23,6 +23,9 @@ More than df.info(), less than pandas_profiling. Just between.
 ### wcs.pd.fuzzyrightjoin
 Lookup-join supporting function based min/max/threshold conditions. See DocString!
 
+### wcs.kraus.build_histograms_with_target(df: pd.DataFrame, target_col: str, cont_cols: List[str], ord_cols: List[str], cat_cols: List[str], pred_col: str = None, perc_winsor: float = 1, error:str=None,  fix_ratio_scale:Union[float,NoneType]=1, as_pdf_name:str=None)
+Clemens' helper to plot features against binary targets. 
+
 ## SciKit Learn Tools
 ### wcs.skl.metrics.confusion(y_true, y_predict, [labels], [textlables], [title])
 Shorthand for wcs.skl.metrics.pretty_confusionmatrix() with an inner sklearn.metrics.confusion_matrix(), with auto sorting the POSITIVE label to be 1 and the negative label to be 0, if the values support this assumption.
