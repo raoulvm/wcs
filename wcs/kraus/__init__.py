@@ -1,5 +1,5 @@
-from _typeshed import NoneType
-from typing import Tuple, List, Union # typed Lists
+
+from typing import Tuple, List, Union, Optional
 
 import pandas as pd
 import numpy as np
@@ -408,7 +408,7 @@ def plot_histogram_with_target(df: pd.DataFrame,
 
 
 def build_histograms_with_target(df: pd.DataFrame, target_col: str, cont_cols: List[str], ord_cols: List[str], cat_cols: List[str],
-                                 pred_col: str = None, perc_winsor: float = 1, error:str=None,  fix_ratio_scale:Union[float,NoneType]=1, as_pdf_name:str=None):
+                                 pred_col: str = None, perc_winsor: float = 1, error:str=None,  fix_ratio_scale:Union[float,None]=1, as_pdf_name:str=None):
     """
     For each variable, create a histogram in which for each bin of the histogram the average target value is plotted
     as well.
