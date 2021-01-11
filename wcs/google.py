@@ -1,4 +1,4 @@
-from io import StringIO
+from io import StringIO, BytesIO
 #taken from this StackOverflow answer: https://stackoverflow.com/a/39225039
 import requests
 def google_drive_share(id:str, binaryfile:bool=False, textencoding:str='utf-8'):
@@ -52,7 +52,7 @@ def google_drive_share(id:str, binaryfile:bool=False, textencoding:str='utf-8'):
         response = session.get(URL, params = params, stream = True)
     sr = response
     if binaryfile:
-        return sr.content
+        return BytesIO(sr.content) # v0.6.8 wrap in BytesIO to enable pandas.read_parquet and ZipFile, solves #4
     # text file encoding
     sr.encoding=textencoding
     return StringIO(sr.text)
