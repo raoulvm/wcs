@@ -52,3 +52,57 @@ def append_dict(dic_a:dict, dic_b:dict):
         [type]: [description]
     """
     return {**dic_a, **dic_b} # Python 3.5+
+
+
+def walkthrough(dict_of_lists:dict)->list:
+    """List generator for GridSearch-like parameter searches
+
+
+    >>>walkthrough({'a':[1],'b':5, 'c':[3,6],'d':[1,2,3,4]})
+    [1] Iterating 8 item combinations
+        [{'a': 1, 'b': 5, 'c': 3, 'd': 1},
+        {'a': 1, 'b': 5, 'c': 3, 'd': 2},
+        {'a': 1, 'b': 5, 'c': 3, 'd': 3},
+        {'a': 1, 'b': 5, 'c': 3, 'd': 4},
+        {'a': 1, 'b': 5, 'c': 6, 'd': 1},
+        {'a': 1, 'b': 5, 'c': 6, 'd': 2},
+        {'a': 1, 'b': 5, 'c': 6, 'd': 3},
+        {'a': 1, 'b': 5, 'c': 6, 'd': 4}]
+
+    Args:
+        dict_of_lists (dict): The dictionary with lists as values. (Scalars will be converted)
+
+    Returns:
+        list: A list of dictionaries. For each dict another combination from the lists of the original dict is used.
+    """
+    def crossmul(dic_of_lists:dict)->int:
+        res = 1
+        for tup in dic_of_lists.items():
+            if isinstance(tup[1], list):
+                res *= len(tup[1])
+        return res
+    def __iterate(the_list:list, __cur=[]):
+        __debug=False
+        def _print(*arg, **kwargs):
+            if __debug:
+                print(*args, **kwargs)
+        par = the_list[0][0]
+        _print(__cur) #, end=',')
+        pvm = []
+        if not isinstance(the_list[0][1], list): # avoid single items breaking th e tool
+            the_list[0][1] = [the_list[0][1]]
+
+        if len(the_list)>1: # there are more parameters to come
+            for pv in the_list[0][1]:
+                pvm.extend( __iterate(the_list[1:], __cur + [(par, pv)]) )# go through the others
+        else: 
+            # lowest level
+            for pv in the_list[0][1]:
+                _print('cur= ', __cur)
+                _print('appending', __cur + [(par, pv)])
+                pvm.append(__cur + [(par, pv)])
+        _print('returning', pvm)
+        return pvm
+    print('Iterating', crossmul(dict_of_lists), 'item combinations')
+    tups = [[k,v] for (k,v) in dict_of_lists.items()]
+    return [dict(a) for a in __iterate(tups)]
