@@ -130,11 +130,11 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
         # beautify only 
         #merge some cells to get rid of the clutter
         # top right
-        m.merge_cells(0, 2+columns,1, 5+columns)
+        #m.merge_cells(0, 2+columns,1, 5+columns)
         # bottom left
-        m.merge_cells(5+rows, 0, 5+rows, 1)
+        #m.merge_cells(5+rows, 0, 5+rows, 1)
         # bottom right
-        m.merge_cells(2+columns, 2+rows, 5+rows, 5+columns)
+        #m.merge_cells(2+columns, 2+rows, 5+rows, 5+columns)
 
 
         if as_object:
