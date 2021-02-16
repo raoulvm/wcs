@@ -104,7 +104,7 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
         m[r1 + 1,  c1    ] = mtext('Positive Predictive Value = Precision', f"Of the predicted {textlabels[0]}s, we were right in {precision:,.0%} of the cases.")
         m[r1 + 1,  c1 + 2] = f'{precision:,.0%}'
         m.merge_cells(r1 + 2,  c1, None,c1+1 )
-        fdr = confusionmatrix[0,1] / confusionmatrix[:,0].sum()
+        fdr = confusionmatrix[1,0] / confusionmatrix[:,0].sum()
         ret_metrics.update({'FDR':fdr})
         m[r1 +2 ,  c1    ] = mtext('False Discovery Rate' , f"Of all predicted {textlabels[0]}s, we were wrong in {fdr:,.0%}")
         m[r1 +2 ,  c1 + 2] = f'{fdr:,.0%}'
