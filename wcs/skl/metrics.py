@@ -61,13 +61,13 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
         c2 = 4+columns
         r1 = 2
         
-        tpp = confusionmatrix[0,0]/confusionmatrix[0].sum()
-        ret_metrics.update({'TPP':tpp})
-        m[r1 +0,c1   ] = mtext('True Positive Rate = Recall = Sensitivity', f"Of all '{textlabels[0]}'s, we detected {tpp:,.0%} ")
-        m[r1 +0,c1+1 ] = f'{tpp:,.0%}'
+        tpr = confusionmatrix[0,0]/confusionmatrix[0].sum()
+        ret_metrics.update({'TPR':tpr})
+        m[r1 +0,c1   ] = mtext('True Positive Rate = Recall = Sensitivity', f"Of all '{textlabels[0]}'s, we detected {tpr:,.0%} ")
+        m[r1 +0,c1+1 ] = f'{tpr:,.0%}'
 
         fpr = confusionmatrix[1,0]/(confusionmatrix[1].sum())
-        ret_metrics.update({'FPP':fpr})
+        ret_metrics.update({'FPR':fpr})
         m[r1 +1,c1   ] = mtext('False Positive Rate = Fall-out = P(false alarm)', f"Of all '{textlabels[1]}'s, we predicted {fpr:,.0%} to be {textlabels[0]}s" ) 
         m[r1 +1,c1+1 ] = f'{confusionmatrix[1,0]/(confusionmatrix[1].sum()):,.0%}'
         
