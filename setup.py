@@ -2,11 +2,11 @@ from setuptools import setup, find_packages
 
 setup(
     name='wcs',
-    version='0.6.13',
+    version='0.6.14',
     description='wcs tools for colab and co',
-    url='git@github.com/snowdd1/wcs.git',
+    url='git@github.com/raoulvm/wcs.git',
     author='Raoul',
-    author_email='snowdd1.theelk@xoxy.net',
+    author_email='telkorvm1@gmail.com',
     license='MIT2.0',
     packages=find_packages(), # Auto setup all packages
     zip_safe=False,
