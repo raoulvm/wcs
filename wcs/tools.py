@@ -213,3 +213,129 @@ def pltfct(fct:Callable[[float],float]=math.sin, xmin:float=-10.0, xmax:float=10
     plt.legend(loc=1)
     plt.show()
 
+#============================================================
+
+# to talk API
+import json
+import requests
+import pandas as pd
+import urllib3
+import datetime
+
+#for handling images
+from PIL import Image as pil_image
+from io import BytesIO
+import matplotlib.pyplot as plt
+import numpy as np
+
+from typing import List, Dict
+
+class Tmdb_api_connector:
+    def __init__(self, 
+                 api_key:str,
+                 language:str='en-US',
+                 include_adult:bool=False,
+                 ):
+        self._api_key = api_key
+        self._language = language
+        self._include_adult = include_adult
+        self._config = self._get_dict_from_url(url='https://api.themoviedb.org/3/configuration', paramsdict={})
+
+    def _get_dict_from_url(self, url:str, paramsdict:Dict[str,str]):
+        """
+        Low level API call to get the web services response and 
+        raises
+        ------
+        requests.HTTPError in case something went wrong with the web API
+        JSONDecodeError    in case the answer is not parseable
+        """
+        # proper URL encoding, and add api key and language for each call
+        all_keys = {**paramsdict, 
+            'api_key':self._api_key,
+            'language':self._language,
+        }
+        r = requests.get(url + '?' + urllib3.request.urlencode(all_keys) )
+        if r.ok:
+            j = json.loads(r.text)
+            r.close()
+            return j
+        raise requests.HTTPError(f"HTTP ERROR {str(r)}", response=r)
+
+    def _get_allpages(self, url:str, paramsdict:Dict[str,str]):
+        """
+        Data from the movie database might be paginated (returned in chunks of e.g. 20 records)
+        raises
+        ------
+        requests.HTTPError in case something went wrong
+        """
+        r1 = self._get_dict_from_url(url, paramsdict)
+        r = [r1]
+        #display(r)
+        if 'total_pages' in r1:
+            # print('more than one page')
+            for next_page in range(2, r1['total_pages']+1):
+                # print(f"load page {next_page} ")
+                r.append(self._get_dict_from_url(url, {**paramsdict, 'page':next_page}))
+        # print(len(r))
+        # print([len(rx['results']) for rx in r])
+        results = [entry for rx in r for entry in rx['results']  ]
+
+        return results
+
+    def movie_query(self, querystring:str)->pd.DataFrame:
+        result = tmdb._get_allpages(url='https://api.themoviedb.org/3/search/movie', paramsdict={'query':querystring, 'include_adult':self._include_adult})
+        return pd.DataFrame.from_records(result) 
+
+    def get_genres_dict(self)->Dict[int,str]:
+        try: 
+            # used cached list if any is there
+            return self._genres
+        except AttributeError:
+            r = self._get_dict_from_url(url='https://api.themoviedb.org/3/genre/movie/list', paramsdict={})
+            r = r['genres']
+            r = {x['id']:x['name'] for x in r}
+            self._genres = r
+        return r
+
+    def get_poster(self, poster_path:str, size:str=None)->pil_image.Image:
+        if size is None:
+            size = self._config['images']['poster_sizes'][4]
+        if isinstance(size, int):
+            size = tmdb._config['images']['poster_sizes'][min(size,len(tmdb._config['images']['poster_sizes'])-1)]
+        r = requests.get(tmdb._config['images']['secure_base_url']+size+poster_path)
+        if r.ok:
+            im = pil_image.open(BytesIO(r.content))
+            im.load() # force loading so we can close the connection
+            r.close()
+            return im
+        raise requests.HTTPError(f"HTTP ERROR {str(r)}", response=r)
+
+    def get_full_movie_list(self):
+        try:
+            return self._full_list
+        except AttributeError:
+            now = datetime.datetime.now()-datetime.timedelta(days=1)
+            self._full_list = pd.read_json(f"http://files.tmdb.org/p/exports/movie_ids_{now.month:02d}_{now.day:02d}_{now.year:04d}.json.gz", compression='gzip', lines=True).sort_values('id')
+            return self._full_list
+
+    def save_movie_pictures_pickle(self, start_at:int, max_pics:int = 100, verbose:bool=True ):
+        df_list = self.get_full_movie_list()
+        df_excerpt = df_list[(df_list['id']>=start_at)]
+        result = pd.DataFrame()
+        pic_count = 0
+        for _,rec in df_excerpt.iterrows():
+            # display(rec)
+            one_movie = pd.DataFrame.from_records([tmdb._get_dict_from_url(f"https://api.themoviedb.org/3/movie/{rec['id']}", paramsdict={})])
+            if not pd.isna(one_movie['poster_path'][0]):
+                one_movie['poster'] = tmdb.get_poster(one_movie['poster_path'][0], size='w500')
+                result = result.append(one_movie, ignore_index=True)
+                pic_count += 1
+                if verbose: print('.', end='')
+            if pic_count>=max_pics:
+                break
+        if verbose: print('\nSaving')
+        result.to_pickle(f"../data/posters_{start_at:06d}_to_{result.id.max():06d}.pickle.gz", compression='gzip')        
+        return result.id.max()+1
+        
+    def __repr__(self):
+        return f'tmdb({str({k[1:]:v for k,v in  tmdb.__dict__.items() if not isinstance(v,(dict, list, pd.core.frame.DataFrame))})})'
