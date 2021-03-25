@@ -58,7 +58,7 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
         if dec is None:
             dec=decimals #use function wide default
         return mtext(
-            text = f"{value:.{dec}$}",
+            text = f"{value:.{dec}%}",
             hover=hover,
             align='right',
         )
