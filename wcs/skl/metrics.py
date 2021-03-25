@@ -11,6 +11,7 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
                             texthint:str='', 
                             metrics:bool=True, 
                             as_object:bool=False,
+                            printout:bool=True,
                             decimals:int=1)->Union[object, dict]:
     """Create a more readable HTML based confusion matrix, based on sklearn 
 
@@ -64,7 +65,7 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
         )
 
     if metrics and rows==2 and columns==2: # metrics do not work well for other sizes
-        ret_metrics = {}
+        
         m.add_rows(4)
         m.add_columns(4)
         c1 = 2+columns
@@ -79,7 +80,16 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
         fp = confusionmatrix[1,0]
         fn = confusionmatrix[0,1]
         tn = confusionmatrix[1,1]
-
+        ret_metrics = {
+            'all_positives':all_positives,
+            'all_negatives':all_negatives,
+            'all_pred_positives':all_pred_positives,
+            'all_pred_negatives':all_pred_negatives,
+            'tp':tp,
+            'tn':tn,
+            'fp':fp,
+            'fn':fn,
+        }
         
         tpr = tp/all_positives
         ret_metrics.update({'TPR':tpr})
@@ -160,8 +170,11 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
 
         if as_object:
             return m
-        display(m)
+        if printout:
+            display(m)
         return ret_metrics
+    if printout:
+        display(m)
     return m
 
 
