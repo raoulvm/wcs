@@ -10,7 +10,8 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
                             title:str='Confusion Matrix', 
                             texthint:str='', 
                             metrics:bool=True, 
-                            as_object:bool=False)->Union[object, dict]:
+                            as_object:bool=False,
+                            decimals:int=1)->Union[object, dict]:
     """Create a more readable HTML based confusion matrix, based on sklearn 
 
     Args:
@@ -25,6 +26,7 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
                 returns the confusion metrix as HTMLTable object.
         order (str, optional, default = 'sklearn): The orientation of the input/output matrix. Can be 'sklearn' or 'wikipedia'
         as_object: If calculating metrics (metrics=True), return only the confusion matrix table with metrics, and no dict of metrics.
+        decimals (int, optional): Number of decimals for percentage values. Defaults to 1.
 
     Returns:
         Union[HTMLTable, dict]: The matrix as HTMLTable if `metrics` is set to False, a dict with the metrics otherwise (Default)
@@ -45,11 +47,11 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
     m.merge_cells(0,2,0,1+columns)[0,2]='Predicted Class'
     m.merge_cells(2,0,1+rows,0)[2,0]='Actual Class'
     for i in range(len(textlabels)):
-        if i<columns: m[1, 2+i] = textlabels[i]
-        if i<rows: m[2+i, 1] = textlabels[i]
+        if i<columns: m[1, 2+i] = textlabels[i] + f" ({confusionmatrix[i].sum()})"
+        if i<rows: m[2+i, 1] = textlabels[i] + f" ({confusionmatrix[:,i].sum()})"
     for r in range(rows):
         for c in range(columns):
-            m[2+r, 2+c] = mtext(f"<b>{confusionmatrix[r,c]}</b>", f'"{confusionmatrix[r,c]}"" predicted "{textlabels[c]}"s are "{textlabels[r]}"s')
+            m[2+r, 2+c] = mtext(f"<b>{confusionmatrix[r,c]}</b>", f"{confusionmatrix[r,c]} predicted {textlabels[c]}s are {textlabels[r]}s")
 
 
 
@@ -60,26 +62,36 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
         c1 = 2+columns
         c2 = 4+columns
         r1 = 2
+
+        all_positives = confusionmatrix[0].sum()
+        all_negatives = confusionmatrix[1].sum()
+        all_pred_positives = confusionmatrix[:,0].sum()
+        all_pred_negatives = confusionmatrix[:,1].sum()
+        tp = confusionmatrix[0,0]
+        fp = confusionmatrix[1,0]
+        fn = confusionmatrix[0,1]
+        tn = confusionmatrix[1,1]
+
         
-        tpr = confusionmatrix[0,0]/confusionmatrix[0].sum()
+        tpr = tp/all_positives
         ret_metrics.update({'TPR':tpr})
-        m[r1 +0,c1   ] = mtext('True Positive Rate = Recall = Sensitivity', f"Of all '{textlabels[0]}'s, we detected {tpr:,.0%} ")
-        m[r1 +0,c1+1 ] = f'{tpr:,.0%}'
+        m[r1 +0,c1   ] = mtext('True Positive Rate = Recall = Sensitivity', f"Of all '{textlabels[0]}'s, we detected {tpr:,.{decimals}%} (TP/Positives) ")
+        m[r1 +0,c1+1 ] = f'{tpr:,.{decimals}%}'
 
-        fpr = confusionmatrix[1,0]/(confusionmatrix[1].sum())
+        fpr = fp/all_negatives
         ret_metrics.update({'FPR':fpr})
-        m[r1 +1,c1   ] = mtext('False Positive Rate = Fall-out = P(false alarm)', f"Of all '{textlabels[1]}'s, we predicted {fpr:,.0%} to be {textlabels[0]}s" ) 
-        m[r1 +1,c1+1 ] = f'{confusionmatrix[1,0]/(confusionmatrix[1].sum()):,.0%}'
+        m[r1 +1,c1   ] = mtext('False Positive Rate = Fall-out = P(false alarm)', f"Of all '{textlabels[1]}'s, we predicted {fpr:,.{decimals}%} to be {textlabels[0]}s (FP/Negatives)" ) 
+        m[r1 +1,c1+1 ] = f'{confusionmatrix[1,0]/(confusionmatrix[1].sum()):,.{decimals}%}'
         
-        fnr = confusionmatrix[0,1]/confusionmatrix[0].sum()
+        fnr = fn/all_positives
         ret_metrics.update({'FNR':fnr})
-        m[r1 ,c2    ] = mtext('False Negative Rate = Miss Rate', f"Of all the '{textlabels[0]}'s, we misdetected {fnr:,.0%}" )
-        m[r1 ,c2 + 1] = f'{fnr:,.0%}'
+        m[r1 ,c2    ] = mtext('False Negative Rate = Miss Rate', f"Of all the '{textlabels[0]}'s, we misdetected {fnr:,.{decimals}%} (FN/Positives)" )
+        m[r1 ,c2 + 1] = f'{fnr:,.{decimals}%}'
 
-        tnr = confusionmatrix[1,1]/(confusionmatrix[1].sum())
+        tnr = tn/all_negatives
         ret_metrics.update({'TNR':tnr})
-        m[r1 +1,c2 ] = mtext('Specificity (SPC), Selectivity, True negative rate (TNR)' , f"Of all the '{textlabels[1]}'s, we correctly identified {tnr:,.0%}") 
-        m[r1 +1,c2+1 ] = f'{tnr:,.0%}'
+        m[r1 +1,c2 ] = mtext('Specificity (SPC), Selectivity, True negative rate (TNR)' , f"Of all the '{textlabels[1]}'s, we correctly identified {tnr:,.{decimals}%} (TN/Negatives)") 
+        m[r1 +1,c2+1 ] = f'{tnr:,.{decimals}%}'
 
 
 
@@ -88,43 +100,43 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
         c2 = c1+2
 
         # regarding population
-        prevalence = (confusionmatrix[0].sum())/population
+        prevalence = all_positives/population
         ret_metrics.update({'prevalence':prevalence})
-        m[r1    ,  c1    ] = mtext('Prevalence', f"It is so likely to hit a {textlabels[0]} randomly: {prevalence:,.1%}")
-        m[r1    ,  c1 + 1] = f"{prevalence:,.1%}"
-        accuracy = (confusionmatrix[0,0] + confusionmatrix[1,1])/population
+        m[r1    ,  c1    ] = mtext('Prevalence', f"It is so likely to hit a {textlabels[0]} randomly: {prevalence:,.{decimals}%} (Positives/Population)")
+        m[r1    ,  c1 + 1] = f"{prevalence:,.{decimals}%}"
+        accuracy = (tp + tn)/population
         ret_metrics.update({'accuracy':accuracy})
-        m[r1    ,  c2    ] = mtext('Accuracy' , f"Of all samples, we correctly identified {accuracy:,.1%}")
-        m[r1    ,  c2 + 1] = f'{accuracy:,.1%}'
+        m[r1    ,  c2    ] = mtext('Accuracy' , f"Of all samples, we correctly identified {accuracy:,.{decimals}%} ((TP+TN)/Population)")
+        m[r1    ,  c2 + 1] = f'{accuracy:,.{decimals}%}'
 
         # regarding predicted Positives
         m.merge_cells(r1 + 1,  c1, None,c1+1 )
-        precision  = confusionmatrix[0,0] / confusionmatrix[:,0].sum()
+        precision  = tp / all_pred_positives
         ret_metrics.update({'precision':precision})
-        m[r1 + 1,  c1    ] = mtext('Positive Predictive Value = Precision', f"Of the predicted {textlabels[0]}s, we were right in {precision:,.0%} of the cases.")
-        m[r1 + 1,  c1 + 2] = f'{precision:,.0%}'
+        m[r1 + 1,  c1    ] = mtext('Positive Predictive Value = Precision', f"Of the predicted {textlabels[0]}s, we were right in {precision:,.{decimals}%} of the cases. (TP/Pred.Positives)")
+        m[r1 + 1,  c1 + 2] = f'{precision:,.{decimals}%}'
         m.merge_cells(r1 + 2,  c1, None,c1+1 )
-        fdr = confusionmatrix[1,0] / confusionmatrix[:,0].sum()
+        fdr = fp / all_pred_positives
         ret_metrics.update({'FDR':fdr})
-        m[r1 +2 ,  c1    ] = mtext('False Discovery Rate' , f"Of all predicted {textlabels[0]}s, we were wrong in {fdr:,.0%}")
-        m[r1 +2 ,  c1 + 2] = f'{fdr:,.0%}'
+        m[r1 +2 ,  c1    ] = mtext('False Discovery Rate' , f"Of all predicted {textlabels[0]}s, we were wrong in {fdr:,.{decimals}%} (FP/Pred.Positives")
+        m[r1 +2 ,  c1 + 2] = f'{fdr:,.{decimals}%}'
 
         # regarding predicted Negatives
-        For = confusionmatrix[0,1] / confusionmatrix[:,1].sum()
+        For = fn / all_pred_negatives
         ret_metrics.update({'FOR':For})
-        m[r1 + 1,  c2 + 2 ] = mtext('False Omission Rate' , f"Of the predicted {textlabels[1]}s, {For:,.0%} were in fact {textlabels[0]}s!")
-        m[r1 + 1,  c2 + 1] = f'{For:,.0%}'
+        m[r1 + 1,  c2 + 2 ] = mtext('False Omission Rate' , f"Of the predicted {textlabels[1]}s, {For:,.{decimals}%} were in fact {textlabels[0]}s! (FN/Pred.Negatives)")
+        m[r1 + 1,  c2 + 1] = f'{For:,.{decimals}%}'
 
-        npv = confusionmatrix[1,1] / confusionmatrix[:,1].sum()
+        npv = tn / all_pred_negatives
         ret_metrics.update({'NPV':npv})
-        m[r1 +2 ,  c2 +2 ] = mtext('Negative predicted Value' , f"Of all predicted {textlabels[1]}s, we correctly identified {npv:,.0%}")
-        m[r1 +2 ,  c2 + 1] = f'{npv:,.0%}'
+        m[r1 +2 ,  c2 +2 ] = mtext('Negative predicted Value' , f"Of all predicted {textlabels[1]}s, we correctly identified {npv:,.{decimals}%} (TN/Pred.Negatives)")
+        m[r1 +2 ,  c2 + 1] = f'{npv:,.{decimals}%}'
         
         #m.merge_cells(r1 + 3,  c1+2, None,c1+3 )
-        f1score = 2* ((confusionmatrix[0,0] / confusionmatrix[:,0].sum() *confusionmatrix[0,0]/confusionmatrix[0].sum()) ) / (confusionmatrix[0,0] / confusionmatrix[:,0].sum() + confusionmatrix[0,0]/confusionmatrix[0].sum())
+        f1score = 2* ((precision * tpr) ) / (precision + tpr)
         ret_metrics.update({'F1score':f1score})
-        m[r1 + 3,  c1 + 2] = mtext('F1 Score')
-        m[r1 + 3,  c1 + 3] = f'{f1score:,.0%}'
+        m[r1 + 3,  c1 + 2] = mtext('F1 Score', '2*(Precision*Recall)/(Precision+Recall)')
+        m[r1 + 3,  c1 + 3] = f'{f1score:,.{decimals}%}'
 
 
         # beautify only 
@@ -144,7 +156,7 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
     return m
 
 
-def confusion(y_true:list, y_predict:list, labels:list='auto', textlabels:List[str]=None, title:str='Confusion Matrix'):
+def confusion(y_true:list, y_predict:list, labels:list='auto', textlabels:List[str]=None, title:str='Confusion Matrix', decimals:int=1):
     """Generate a HTMLTable with confusion matrix details
        Will SORT the LABELS (if none are provided) from the data descending, assuming the Highest Value is the "Positive" label.
 
@@ -172,4 +184,11 @@ def confusion(y_true:list, y_predict:list, labels:list='auto', textlabels:List[s
                 textlabels = labels
     if textlabels is None: 
         textlabels = ['Positive', 'Negative']
-    return pretty_confusionmatrix( confusionmatrix= confusion_matrix(y_true, y_predict, labels=labels), title=title, textlabels=textlabels, metrics=True, as_object=True)
+    return pretty_confusionmatrix( 
+        confusionmatrix= confusion_matrix(y_true, y_predict, labels=labels), 
+        title=title, 
+        textlabels=textlabels, 
+        metrics=True, 
+        as_object=True,
+        decimals=decimals,
+        )
