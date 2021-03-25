@@ -33,9 +33,10 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
     """
     if not isinstance(confusionmatrix, np.ndarray):
         confusionmatrix = np.array(confusionmatrix)
-    def mtext(text: str, hover: str = None):
-        if hover is None: return '<div>'+text+'</div>'
-        return f'<div title="{hover}">'+text+'</div>'
+    def mtext(text: str, hover: str = None, align:str='left'):
+        if hover is None: return f'<div style="text-align: {align};">'+text+'</div>'
+        return f'<div title="{hover}" style="text-align: {align};">'+text+'</div>'
+
     rows, columns = confusionmatrix.shape
     m:HTMLtable = HTMLtable(2+rows,2+columns,title)
     m.merge_cells(0,0,1,1)
@@ -51,9 +52,16 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
         if i<rows: m[2+i, 1] = '<b>'+textlabels[i] + f"</b> ({confusionmatrix[:,i].sum()})"
     for r in range(rows):
         for c in range(columns):
-            m[2+r, 2+c] = mtext(f"<b>{confusionmatrix[r,c]}</b>", f"{confusionmatrix[r,c]} predicted {textlabels[c]}s are {textlabels[r]}s")
+            m[2+r, 2+c] = mtext(f"<b>{confusionmatrix[r,c]}</b>", f"{confusionmatrix[r,c]} predicted {textlabels[c]}s are {textlabels[r]}s", align='right')
 
-
+    def perc_cell(value, hover:str=None, dec:int=None):
+        if dec is None:
+            dec=decimals #use function wide default
+        return mtext(
+            text = f"{value:.{dec}$}",
+            hover=hover,
+            align='right',
+        )
 
     if metrics and rows==2 and columns==2: # metrics do not work well for other sizes
         ret_metrics = {}
@@ -76,22 +84,22 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
         tpr = tp/all_positives
         ret_metrics.update({'TPR':tpr})
         m[r1 +0,c1   ] = mtext('True Positive Rate = Recall = Sensitivity', f"Of all '{textlabels[0]}'s, we detected {tpr:,.{decimals}%} (TP/Positives) ")
-        m[r1 +0,c1+1 ] = f'{tpr:,.{decimals}%}'
+        m[r1 +0,c1+1 ] = perc_cell(tpr)
 
         fpr = fp/all_negatives
         ret_metrics.update({'FPR':fpr})
         m[r1 +1,c1   ] = mtext('False Positive Rate = Fall-out = P(false alarm)', f"Of all '{textlabels[1]}'s, we predicted {fpr:,.{decimals}%} to be {textlabels[0]}s (FP/Negatives)" ) 
-        m[r1 +1,c1+1 ] = f'{confusionmatrix[1,0]/(confusionmatrix[1].sum()):,.{decimals}%}'
+        m[r1 +1,c1+1 ] = perc_cell(fpr)
         
         fnr = fn/all_positives
         ret_metrics.update({'FNR':fnr})
         m[r1 ,c2    ] = mtext('False Negative Rate = Miss Rate', f"Of all the '{textlabels[0]}'s, we misdetected {fnr:,.{decimals}%} (FN/Positives)" )
-        m[r1 ,c2 + 1] = f'{fnr:,.{decimals}%}'
+        m[r1 ,c2 + 1] = perc_cell(fnr)
 
         tnr = tn/all_negatives
         ret_metrics.update({'TNR':tnr})
         m[r1 +1,c2 ] = mtext('Specificity (SPC), Selectivity, True negative rate (TNR)' , f"Of all the '{textlabels[1]}'s, we correctly identified {tnr:,.{decimals}%} (TN/Negatives)") 
-        m[r1 +1,c2+1 ] = f'{tnr:,.{decimals}%}'
+        m[r1 +1,c2+1 ] = perc_cell(tnr)
 
 
 
@@ -103,40 +111,41 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
         prevalence = all_positives/population
         ret_metrics.update({'prevalence':prevalence})
         m[r1    ,  c1    ] = mtext('Prevalence', f"It is so likely to hit a {textlabels[0]} randomly: {prevalence:,.{decimals}%} (Positives/Population)")
-        m[r1    ,  c1 + 1] = f"{prevalence:,.{decimals}%}"
+        m[r1    ,  c1 + 1] = perc_cell(prevalence)
         accuracy = (tp + tn)/population
         ret_metrics.update({'accuracy':accuracy})
         m[r1    ,  c2    ] = mtext('Accuracy' , f"Of all samples, we correctly identified {accuracy:,.{decimals}%} ((TP+TN)/Population)")
-        m[r1    ,  c2 + 1] = f'{accuracy:,.{decimals}%}'
+        m[r1    ,  c2 + 1] = perc_cell(accuracy)
 
         # regarding predicted Positives
         m.merge_cells(r1 + 1,  c1, None,c1+1 )
         precision  = tp / all_pred_positives
         ret_metrics.update({'precision':precision})
         m[r1 + 1,  c1    ] = mtext('Positive Predictive Value = Precision', f"Of the predicted {textlabels[0]}s, we were right in {precision:,.{decimals}%} of the cases. (TP/Pred.Positives)")
-        m[r1 + 1,  c1 + 2] = f'{precision:,.{decimals}%}'
+        m[r1 + 1,  c1 + 2] = perc_cell(precision)
         m.merge_cells(r1 + 2,  c1, None,c1+1 )
+
         fdr = fp / all_pred_positives
         ret_metrics.update({'FDR':fdr})
         m[r1 +2 ,  c1    ] = mtext('False Discovery Rate' , f"Of all predicted {textlabels[0]}s, we were wrong in {fdr:,.{decimals}%} (FP/Pred.Positives")
-        m[r1 +2 ,  c1 + 2] = f'{fdr:,.{decimals}%}'
+        m[r1 +2 ,  c1 + 2] = perc_cell(fdr)
 
         # regarding predicted Negatives
         For = fn / all_pred_negatives
         ret_metrics.update({'FOR':For})
         m[r1 + 1,  c2 + 2 ] = mtext('False Omission Rate' , f"Of the predicted {textlabels[1]}s, {For:,.{decimals}%} were in fact {textlabels[0]}s! (FN/Pred.Negatives)")
-        m[r1 + 1,  c2 + 1] = f'{For:,.{decimals}%}'
+        m[r1 + 1,  c2 + 1] = perc_cell(For)
 
         npv = tn / all_pred_negatives
         ret_metrics.update({'NPV':npv})
         m[r1 +2 ,  c2 +2 ] = mtext('Negative predicted Value' , f"Of all predicted {textlabels[1]}s, we correctly identified {npv:,.{decimals}%} (TN/Pred.Negatives)")
-        m[r1 +2 ,  c2 + 1] = f'{npv:,.{decimals}%}'
+        m[r1 +2 ,  c2 + 1] = perc_cell(npv)
         
         #m.merge_cells(r1 + 3,  c1+2, None,c1+3 )
         f1score = 2* ((precision * tpr) ) / (precision + tpr)
         ret_metrics.update({'F1score':f1score})
         m[r1 + 3,  c1 + 2] = mtext('F1 Score', '2*(Precision*Recall)/(Precision+Recall)')
-        m[r1 + 3,  c1 + 3] = f'{f1score:,.{decimals}%}'
+        m[r1 + 3,  c1 + 3] = perc_cell(f1score)
 
 
         # beautify only 
