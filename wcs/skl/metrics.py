@@ -44,11 +44,11 @@ def pretty_confusionmatrix( confusionmatrix: np.ndarray,
         m[0,0]=f'Population= {population} '
     else:
         m[0,0] = texthint
-    m.merge_cells(0,2,0,1+columns)[0,2]='Predicted Class'
-    m.merge_cells(2,0,1+rows,0)[2,0]='Actual Class'
+    m.merge_cells(0,2,0,1+columns)[0,2]='<b>Predicted Class</b>'
+    m.merge_cells(2,0,1+rows,0)[2,0]='<b>Actual Class</b>'
     for i in range(len(textlabels)):
-        if i<columns: m[1, 2+i] = textlabels[i] + f" ({confusionmatrix[i].sum()})"
-        if i<rows: m[2+i, 1] = textlabels[i] + f" ({confusionmatrix[:,i].sum()})"
+        if i<columns: m[1, 2+i] = '<b>'+textlabels[i] + f"</b> ({confusionmatrix[i].sum()})"
+        if i<rows: m[2+i, 1] = '<b>'+textlabels[i] + f"</b> ({confusionmatrix[:,i].sum()})"
     for r in range(rows):
         for c in range(columns):
             m[2+r, 2+c] = mtext(f"<b>{confusionmatrix[r,c]}</b>", f"{confusionmatrix[r,c]} predicted {textlabels[c]}s are {textlabels[r]}s")
