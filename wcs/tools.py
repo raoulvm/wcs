@@ -283,7 +283,7 @@ class Tmdb_api_connector:
         return results
 
     def movie_query(self, querystring:str)->pd.DataFrame:
-        result = tmdb._get_allpages(url='https://api.themoviedb.org/3/search/movie', paramsdict={'query':querystring, 'include_adult':self._include_adult})
+        result = self._get_allpages(url='https://api.themoviedb.org/3/search/movie', paramsdict={'query':querystring, 'include_adult':self._include_adult})
         return pd.DataFrame.from_records(result) 
 
     def get_genres_dict(self)->Dict[int,str]:
@@ -301,8 +301,8 @@ class Tmdb_api_connector:
         if size is None:
             size = self._config['images']['poster_sizes'][4]
         if isinstance(size, int):
-            size = tmdb._config['images']['poster_sizes'][min(size,len(tmdb._config['images']['poster_sizes'])-1)]
-        r = requests.get(tmdb._config['images']['secure_base_url']+size+poster_path)
+            size = self._config['images']['poster_sizes'][min(size,len(self._config['images']['poster_sizes'])-1)]
+        r = requests.get(self._config['images']['secure_base_url']+size+poster_path)
         if r.ok:
             im = pil_image.open(BytesIO(r.content))
             im.load() # force loading so we can close the connection
@@ -315,7 +315,7 @@ class Tmdb_api_connector:
             return self._full_list
         except AttributeError:
             now = datetime.datetime.now()-datetime.timedelta(days=1)
-            self._full_list = pd.read_json(f"http://files.tmdb.org/p/exports/movie_ids_{now.month:02d}_{now.day:02d}_{now.year:04d}.json.gz", compression='gzip', lines=True).sort_values('id')
+            self._full_list = pd.read_json(f"http://files.self.org/p/exports/movie_ids_{now.month:02d}_{now.day:02d}_{now.year:04d}.json.gz", compression='gzip', lines=True).sort_values('id')
             return self._full_list
 
     def save_movie_pictures_pickle(self, start_at:int, max_pics:int = 100, verbose:bool=True ):
@@ -325,9 +325,9 @@ class Tmdb_api_connector:
         pic_count = 0
         for _,rec in df_excerpt.iterrows():
             # display(rec)
-            one_movie = pd.DataFrame.from_records([tmdb._get_dict_from_url(f"https://api.themoviedb.org/3/movie/{rec['id']}", paramsdict={})])
+            one_movie = pd.DataFrame.from_records([self._get_dict_from_url(f"https://api.themoviedb.org/3/movie/{rec['id']}", paramsdict={})])
             if not pd.isna(one_movie['poster_path'][0]):
-                one_movie['poster'] = tmdb.get_poster(one_movie['poster_path'][0], size='w500')
+                one_movie['poster'] = self.get_poster(one_movie['poster_path'][0], size='w500')
                 result = result.append(one_movie, ignore_index=True)
                 pic_count += 1
                 if verbose: print('.', end='')
@@ -338,4 +338,4 @@ class Tmdb_api_connector:
         return result.id.max()+1
         
     def __repr__(self):
-        return f'tmdb({str({k[1:]:v for k,v in  tmdb.__dict__.items() if not isinstance(v,(dict, list, pd.core.frame.DataFrame))})})'
+        return f'self({str({k[1:]:v for k,v in  self.__dict__.items() if not isinstance(v,(dict, list, pd.core.frame.DataFrame))})})'
